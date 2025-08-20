@@ -36,7 +36,7 @@ const onboardingSteps = [
 const feeStructure = [
   { stage: "Customer pays", amount: "$100.00", notes: "USD card", type: "positive" },
   { stage: "Stripe fee (3.9% + $0.30)", amount: "–$4.20", notes: "International processing", type: "negative" },
-  { stage: "FX/Platform fee (1% + 2%)", amount: "–$3.00", notes: "Your profit + conversion buffer", type: "negative" },
+  { stage: "FX/Platform fee (1% + 2%)", amount: "–$3.00", notes: "Local bank transfer processing fees", type: "negative" },
   { stage: "Net to vendor (BSD)", amount: "$92.80", notes: "Local bank payout in BSD", type: "final" }
 ];
 
