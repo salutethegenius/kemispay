@@ -9,7 +9,7 @@ import WithdrawPanel from "@/components/dashboard/withdraw-panel";
 import KycUpload from "@/components/dashboard/kyc-upload";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Dashboard() {
   const { vendor, isAuthenticated } = useAuth();

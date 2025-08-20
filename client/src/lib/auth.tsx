@@ -45,10 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       // Set token FIRST before making any requests
       setAuthToken(token);
-      localStorage.setItem('token', token);
       
       // Small delay to ensure token is set globally
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       const response = await fetch('/api/vendor/profile', {
         headers: {
@@ -83,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setAuthToken = (token: string) => {
     // Store token globally for apiRequest function to use
     (window as any).__kemispay_token = token;
+    localStorage.setItem('token', token);
   };
 
   const login = async (token: string, vendorData: Vendor) => {
