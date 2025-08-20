@@ -46,11 +46,26 @@ class StripeService {
         metadata: {
           vendorId,
         },
+        after_completion: {
+          type: 'redirect',
+          redirect: {
+            url: `${process.env.CLIENT_URL || 'http://localhost:5000'}/payment-success`
+          }
+        }
       });
 
       return paymentLink;
     } catch (error: any) {
       throw new Error(`Failed to create payment link: ${error.message}`);
+    }
+  }
+
+  async getPaymentLink(paymentLinkId: string) {
+    try {
+      return await stripe.paymentLinks.retrieve(paymentLinkId);
+    } catch (error: any) {
+      console.error('Failed to retrieve payment link:', error.message);
+      return null;
     }
   }
 
@@ -72,13 +87,26 @@ class StripeService {
 
   async handlePaymentSuccess(session: any) {
     try {
+      console.log('Processing payment success for session:', session.id);
+      console.log('Session metadata:', session.metadata);
+      
       const { storage } = await import('../storage');
       
-      // Extract vendor ID from metadata
-      const vendorId = session.metadata?.vendorId;
+      // Extract vendor ID from metadata (try both session and payment_link metadata)
+      let vendorId = session.metadata?.vendorId;
+      
+      if (!vendorId && session.payment_link) {
+        // Try to get vendor ID from payment link metadata
+        const paymentLink = await this.getPaymentLink(session.payment_link);
+        vendorId = paymentLink?.metadata?.vendorId;
+      }
+      
       if (!vendorId) {
+        console.error('Vendor ID not found in session or payment link metadata');
         throw new Error('Vendor ID not found in session metadata');
       }
+      
+      console.log('Found vendor ID:', vendorId);
 
       // Get payment details
       const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent, {

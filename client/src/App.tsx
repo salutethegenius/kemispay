@@ -3,11 +3,12 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
+import Support from "./pages/support";
+import Admin from "./pages/admin";
+import PaymentSuccess from "./pages/payment-success";
+import NotFound from "./pages/not-found";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
-import Admin from "@/pages/admin";
-import Support from "@/pages/support";
 import Onboarding from "@/pages/onboarding";
 import { AuthProvider } from "@/lib/auth";
 
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={Admin} />
       <Route path="/support" component={Support} />
+      <Route path="/payment-success" component={PaymentSuccess} />
       <Route component={NotFound} />
     </Switch>
   );

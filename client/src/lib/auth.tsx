@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       // Set token in headers for subsequent requests
+      setAuthToken(token);
+      
       const response = await fetch('/api/vendor/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -56,20 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setVendor(vendorData);
         setIsAuthenticated(true);
         localStorage.setItem('token', token);
-        
-        // Set default authorization header for future requests
-        setAuthToken(token);
-      } else {
+      } else if (response.status === 401) {
         // Token is invalid, remove it
+        console.log('Token expired or invalid, clearing session');
         localStorage.removeItem('token');
         setIsAuthenticated(false);
         setVendor(null);
+        delete (window as any).__kemispay_token;
+      } else {
+        // Other error, don't clear token immediately
+        console.error('Error fetching profile:', response.status);
       }
     } catch (error) {
       console.error('Failed to fetch vendor profile:', error);
-      localStorage.removeItem('token');
-      setIsAuthenticated(false);
-      setVendor(null);
+      // Don't immediately clear token on network errors
     } finally {
       setIsLoading(false);
     }

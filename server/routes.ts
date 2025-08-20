@@ -111,6 +111,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(req.vendor);
   });
 
+  // Manual balance refresh for testing
+  app.post("/api/vendor/refresh", authenticateVendor, async (req, res) => {
+    try {
+      const updatedVendor = await storage.getVendor(req.vendor.id);
+      res.json(updatedVendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Payment link routes
   app.post("/api/payment-links", authenticateVendor, async (req, res) => {
     try {
@@ -289,15 +299,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe webhook endpoint
   app.post("/api/stripe/webhook", async (req, res) => {
     try {
+      console.log('Received webhook event type:', req.body?.type);
       const event = stripeService.constructWebhookEvent(req.body, req.headers['stripe-signature'] as string);
 
-      if (event.type === 'checkout.session.completed') {
-        await stripeService.handlePaymentSuccess(event.data.object);
+      console.log('Processing webhook event:', event.type);
+
+      switch (event.type) {
+        case 'checkout.session.completed':
+          console.log('Checkout session completed, processing payment...');
+          await stripeService.handlePaymentSuccess(event.data.object);
+          break;
+        case 'payment_intent.succeeded':
+          console.log('Payment intent succeeded');
+          break;
+        default:
+          console.log('Unhandled event type:', event.type);
       }
 
       res.json({ received: true });
     } catch (error: any) {
       console.error('Webhook error:', error.message);
+      console.error('Webhook error stack:', error.stack);
       res.status(400).json({ message: error.message });
     }
   });
