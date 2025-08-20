@@ -66,6 +66,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 py-8 lg:px-8">
           <div className="text-center text-sm text-slate-600">
             <p>&copy; 2025 KemisPay. All rights reserved. | 
+               <button onClick={() => setLocation("/onboarding")} className="text-primary hover:text-primary/80 ml-1">FAQ & How It Works</button> |
                <a href="#privacy" className="text-primary hover:text-primary/80 ml-1">Privacy Policy</a> | 
                <a href="#terms" className="text-primary hover:text-primary/80 ml-1">Terms of Service</a>
             </p>

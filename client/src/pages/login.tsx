@@ -35,18 +35,19 @@ export default function Login() {
     try {
       const response = await apiRequest("POST", "/api/auth/login", data);
       const result = await response.json();
-      
-      await login(result.token, result.vendor);
-      
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
-      
-      // Small delay to ensure auth state is updated before redirect
-      setTimeout(() => {
-        setLocation("/dashboard");
-      }, 100);
+
+      if (result.success) {
+        await login(result.token, result.vendor);
+        // Check if this is a new user (you can add logic here to determine this)
+        const isNewUser = !result.vendor.lastLoginAt || new Date(result.vendor.lastLoginAt) < new Date(Date.now() - 24 * 60 * 60 * 1000);
+        setLocation(isNewUser ? "/onboarding" : "/dashboard");
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to login",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",

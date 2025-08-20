@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -148,11 +147,10 @@ export default function Support() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="new">Submit Ticket</TabsTrigger>
-            <TabsTrigger value="tickets">
-              My Tickets {tickets?.length ? `(${tickets.length})` : ''}
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="tickets">My Tickets</TabsTrigger>
+            <TabsTrigger value="new">New Ticket</TabsTrigger>
+            <TabsTrigger value="faq">FAQ & Fees</TabsTrigger>
           </TabsList>
 
           <TabsContent value="new" className="space-y-6">
@@ -308,6 +306,84 @@ export default function Support() {
                 </Card>
               ))
             )}
+          </TabsContent>
+
+          <TabsContent value="faq" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Fee Structure</CardTitle>
+                <p className="text-slate-600">Transparent pricing with example based on $100 USD payment:</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">Customer pays</div>
+                      <div className="text-sm text-slate-600">USD card</div>
+                    </div>
+                    <div className="font-bold text-blue-600">$100.00</div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">Stripe fee (3.9% + $0.30)</div>
+                      <div className="text-sm text-slate-600">International processing</div>
+                    </div>
+                    <div className="font-bold text-red-600">–$4.20</div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">FX/Platform fee (1% + 2%)</div>
+                      <div className="text-sm text-slate-600">Your profit + conversion buffer</div>
+                    </div>
+                    <div className="font-bold text-red-600">–$3.00</div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border-2 border-green-200">
+                    <div>
+                      <div className="font-medium">Net to vendor (BSD)</div>
+                      <div className="text-sm text-slate-600">Local bank payout in BSD</div>
+                    </div>
+                    <div className="font-bold text-green-600">$92.80</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Frequently Asked Questions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">How does onboarding work?</h3>
+                  <p className="text-slate-600">Once you sign up, you'll be guided through a quick onboarding process to set up your profile and payment methods.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Do I need a merchant account?</h3>
+                  <p className="text-slate-600">No! KemisPay handles all payment processing, so you can start accepting payments immediately.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">What's the minimum withdrawal?</h3>
+                  <p className="text-slate-600">$25 BSD minimum withdrawal to reduce processing costs.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">How long do withdrawals take?</h3>
+                  <p className="text-slate-600">1-3 business days to your local bank account.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">What currencies do you accept?</h3>
+                  <p className="text-slate-600">Customers pay in USD, you receive BSD in your local bank.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Is KYC required?</h3>
+                  <p className="text-slate-600">Yes, KYC verification is required for compliance and security.</p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
