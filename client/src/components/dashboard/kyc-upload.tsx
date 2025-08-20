@@ -81,7 +81,7 @@ export default function KycUpload({ vendor }: KycUploadProps) {
   };
 
   const getDocumentStatus = (documentType: string) => {
-    const doc = kycDocuments?.find((d: any) => d.documentType === documentType);
+    const doc = Array.isArray(kycDocuments) ? kycDocuments.find((d: any) => d.documentType === documentType) : undefined;
     return doc?.status || 'not_uploaded';
   };
 
