@@ -38,9 +38,7 @@ export default function Login() {
 
       if (result.success) {
         await login(result.token, result.vendor);
-        // Check if this is a new user (you can add logic here to determine this)
-        const isNewUser = !result.vendor.lastLoginAt || new Date(result.vendor.lastLoginAt) < new Date(Date.now() - 24 * 60 * 60 * 1000);
-        setLocation(isNewUser ? "/onboarding" : "/dashboard");
+        setLocation("/dashboard");
       } else {
         toast({
           title: "Error",

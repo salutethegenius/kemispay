@@ -18,7 +18,7 @@ declare global {
 // Auth middleware
 async function authenticateVendor(req: Request, res: Response, next: Function) {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  
+
   if (!token) {
     return res.status(401).json({ message: 'Authentication required' });
   }
@@ -42,12 +42,12 @@ async function authenticateVendor(req: Request, res: Response, next: Function) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email } = z.object({ email: z.string().email() }).parse(req.body);
-      
+
       let vendor = await storage.getVendorByEmail(email);
       if (!vendor) {
         vendor = await storage.createVendor({
@@ -68,7 +68,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ token, vendor });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      console.error('Login error:', error);
+      res.status(400).json({ success: false, message: error.message || 'Login failed' });
     }
   });
 
@@ -252,7 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const document = await storage.getKycDocument(id);
-      
+
       if (!document || document.vendorId !== req.vendor.id) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -268,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/stripe/webhook", async (req, res) => {
     try {
       const event = stripeService.constructWebhookEvent(req.body, req.headers['stripe-signature'] as string);
-      
+
       if (event.type === 'checkout.session.completed') {
         await stripeService.handlePaymentSuccess(event.data.object);
       }
@@ -300,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }).parse(req.body);
 
       const document = await storage.updateKycDocumentStatus(id, status, reviewNotes);
-      
+
       // Check if all required documents are approved and verify vendor
       if (status === 'approved') {
         const vendorDocuments = await storage.getVendorKycDocuments(document.vendorId);
@@ -308,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const approvedTypes = vendorDocuments
           .filter((doc: any) => doc.status === 'approved')
           .map((doc: any) => doc.documentType);
-        
+
         if (requiredTypes.every(type => approvedTypes.includes(type))) {
           await storage.updateVendorVerification(document.vendorId, true);
         }
@@ -332,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/users/:id/:action", async (req, res) => {
     try {
       const { id, action } = req.params;
-      
+
       let result;
       switch (action) {
         case 'verify':
@@ -373,13 +374,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }).parse(req.body);
 
       const withdrawal = await storage.processWithdrawalRequest(id, status, notes);
-      
+
       // If approved, update vendor balance
       if (status === 'approved' && withdrawal.vendor) {
         const currentBalance = parseFloat(withdrawal.vendor.balance || '0');
         const withdrawalAmount = parseFloat(withdrawal.amount);
         const newBalance = currentBalance - withdrawalAmount;
-        
+
         await storage.updateVendorBalance(withdrawal.vendorId, newBalance.toString());
       }
 
