@@ -375,8 +375,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const withdrawal = await storage.processWithdrawalRequest(id, status, notes);
       
       // If approved, update vendor balance
-      if (status === 'approved') {
-        const currentBalance = parseFloat(withdrawal.vendor.balance);
+      if (status === 'approved' && withdrawal.vendor) {
+        const currentBalance = parseFloat(withdrawal.vendor.balance || '0');
         const withdrawalAmount = parseFloat(withdrawal.amount);
         const newBalance = currentBalance - withdrawalAmount;
         

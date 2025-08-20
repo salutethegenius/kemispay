@@ -225,10 +225,7 @@ export class DatabaseStorage implements IStorage {
     const [session] = await db
       .select()
       .from(sessions)
-      .where(and(
-        eq(sessions.token, token),
-        // Check if session hasn't expired
-      ));
+      .where(eq(sessions.token, token));
     return session || undefined;
   }
 
@@ -330,14 +327,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(vendors.createdAt));
   }
 
-  async updateVendorVerification(vendorId: string, isVerified: boolean) {
-    const [vendor] = await db
-      .update(vendors)
-      .set({ isVerified })
-      .where(eq(vendors.id, vendorId))
-      .returning();
-    return vendor;
-  }
+
 
   async getAllWithdrawalRequests() {
     return await db
@@ -378,28 +368,7 @@ export class DatabaseStorage implements IStorage {
     return { ...withdrawal, vendor };
   }
 
-  async updateVendorBalance(vendorId: string, newBalance: string) {
-    const [vendor] = await db
-      .update(vendors)
-      .set({ balance: newBalance })
-      .where(eq(vendors.id, vendorId))
-      .returning();
-    return vendor;
-  }
 
-  async updateKycDocumentStatus(id: string, status: string, reviewNotes?: string) {
-    const [document] = await db
-      .update(kycDocuments)
-      .set({ 
-        status, 
-        reviewNotes,
-        reviewedAt: new Date() 
-      })
-      .where(eq(kycDocuments.id, id))
-      .returning();
-
-    return document;
-  }
 }
 
 export const storage = new DatabaseStorage();

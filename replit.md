@@ -22,6 +22,8 @@ File storage: Use Storj buckets for KYC document storage
 - Added admin panel for KYC document review
 - Fixed TypeScript errors and improved type safety
 - Successfully deployed database schema
+- Resolved support center authentication bugs and duplicate storage methods
+- Verified full support ticket creation and retrieval functionality
 
 # System Architecture
 
