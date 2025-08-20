@@ -33,6 +33,7 @@ export interface IStorage {
   // KYC methods
   createKycDocument(document: InsertKycDocument): Promise<KycDocument>;
   getVendorKycDocuments(vendorId: string): Promise<KycDocument[]>;
+  getKycDocument(id: string): Promise<KycDocument | undefined>;
   updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument>;
   
   // Session methods
@@ -172,6 +173,14 @@ export class DatabaseStorage implements IStorage {
       .from(kycDocuments)
       .where(eq(kycDocuments.vendorId, vendorId))
       .orderBy(desc(kycDocuments.uploadedAt));
+  }
+
+  async getKycDocument(id: string): Promise<KycDocument | undefined> {
+    const [document] = await db
+      .select()
+      .from(kycDocuments)
+      .where(eq(kycDocuments.id, id));
+    return document || undefined;
   }
 
   async updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument> {

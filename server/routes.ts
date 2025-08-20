@@ -215,6 +215,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/kyc/:id/download", authenticateVendor, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const document = await storage.getKycDocument(id);
+      
+      if (!document || document.vendorId !== req.vendor.id) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      const signedUrl = await storjService.getSignedUrl(document.storjPath);
+      res.json({ downloadUrl: signedUrl });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Stripe webhook endpoint
   app.post("/api/stripe/webhook", async (req, res) => {
     try {

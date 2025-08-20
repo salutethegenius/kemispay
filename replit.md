@@ -18,7 +18,7 @@ File storage: Use Storj buckets for KYC document storage
 - Set up PostgreSQL database with Drizzle ORM
 - Configured Stripe integration for payment processing
 - Created vendor dashboard with balance overview, payment history, and withdrawal functionality
-- Implemented KYC document upload system with Storj integration (stub implementation)
+- Implemented KYC document upload system with full Storj integration using S3 API
 - Added admin panel for KYC document review
 - Fixed TypeScript errors and improved type safety
 - Successfully deployed database schema
