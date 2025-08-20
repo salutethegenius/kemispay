@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for existing token on app start
-    const token = localStorage.getItem('kemispay_token');
+    const token = localStorage.getItem('token');
     if (token) {
       // Verify token and get vendor data
       fetchVendorProfile(token);
@@ -55,19 +55,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const vendorData = await response.json();
         setVendor(vendorData);
         setIsAuthenticated(true);
-        localStorage.setItem('kemispay_token', token);
+        localStorage.setItem('token', token);
         
         // Set default authorization header for future requests
         setAuthToken(token);
       } else {
         // Token is invalid, remove it
-        localStorage.removeItem('kemispay_token');
+        localStorage.removeItem('token');
         setIsAuthenticated(false);
         setVendor(null);
       }
     } catch (error) {
       console.error('Failed to fetch vendor profile:', error);
-      localStorage.removeItem('kemispay_token');
+      localStorage.removeItem('token');
       setIsAuthenticated(false);
       setVendor(null);
     } finally {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (token: string, vendorData: Vendor) => {
-    localStorage.setItem('kemispay_token', token);
+    localStorage.setItem('token', token);
     setVendor(vendorData);
     setIsAuthenticated(true);
     setAuthToken(token);
@@ -89,14 +89,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const token = localStorage.getItem('kemispay_token');
+      const token = localStorage.getItem('token');
       if (token) {
         await apiRequest('POST', '/api/auth/logout', {});
       }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('kemispay_token');
+      localStorage.removeItem('token');
       setVendor(null);
       setIsAuthenticated(false);
       delete (window as any).__kemispay_token;
@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshVendor = async () => {
-    const token = localStorage.getItem('kemispay_token');
+    const token = localStorage.getItem('token');
     if (token && isAuthenticated) {
       await fetchVendorProfile(token);
     }
