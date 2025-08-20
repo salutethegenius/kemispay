@@ -43,8 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchVendorProfile = async (token: string) => {
     try {
       setIsLoading(true);
-      // Set token in headers for subsequent requests
+      // Set token FIRST before making any requests
       setAuthToken(token);
+      localStorage.setItem('token', token);
+      
+      // Small delay to ensure token is set globally
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       const response = await fetch('/api/vendor/profile', {
         headers: {
@@ -57,7 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const vendorData = await response.json();
         setVendor(vendorData);
         setIsAuthenticated(true);
-        localStorage.setItem('token', token);
       } else if (response.status === 401) {
         // Token is invalid, remove it
         console.log('Token expired or invalid, clearing session');
@@ -83,11 +86,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (token: string, vendorData: Vendor) => {
-    // Set token first, then update state
-    localStorage.setItem('token', token);
+    // Set token and storage first
     setAuthToken(token);
+    localStorage.setItem('token', token);
+    
+    // Then update auth state
     setVendor(vendorData);
     setIsAuthenticated(true);
+    
+    // Small delay to ensure everything is set
+    await new Promise(resolve => setTimeout(resolve, 100));
   };
 
   const logout = async () => {

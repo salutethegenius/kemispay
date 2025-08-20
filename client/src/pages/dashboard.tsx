@@ -8,6 +8,8 @@ import PaymentsTable from "@/components/dashboard/payments-table";
 import WithdrawPanel from "@/components/dashboard/withdraw-panel";
 import KycUpload from "@/components/dashboard/kyc-upload";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/api";
 
 export default function Dashboard() {
   const { vendor, isAuthenticated } = useAuth();
@@ -18,6 +20,33 @@ export default function Dashboard() {
       setLocation("/login");
     }
   }, [isAuthenticated, setLocation]);
+
+  const { data: paymentLinks, isLoading: isLoadingLinks } = useQuery({
+    queryKey: ["payment-links"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/payment-links");
+      return response;
+    },
+    enabled: isAuthenticated && !!vendor,
+  });
+
+  const { data: payments, isLoading: isLoadingPayments } = useQuery({
+    queryKey: ["payments"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/payments");
+      return response;
+    },
+    enabled: isAuthenticated && !!vendor,
+  });
+
+  const { data: kycDocuments } = useQuery({
+    queryKey: ["kyc-documents"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/kyc");
+      return response;
+    },
+    enabled: isAuthenticated && !!vendor,
+  });
 
   if (!isAuthenticated) {
     return (
@@ -47,7 +76,7 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6 lg:space-y-8">
             <PaymentLinkGenerator />
             <div id="payments">
-              <PaymentsTable />
+              <PaymentsTable data={payments} isLoading={isLoadingPayments} />
             </div>
           </div>
 
@@ -56,7 +85,7 @@ export default function Dashboard() {
               <WithdrawPanel vendor={vendor} />
             </div>
             <div id="kyc">
-              <KycUpload vendor={vendor} />
+              <KycUpload vendor={vendor} kycDocuments={kycDocuments} />
             </div>
           </div>
         </div>
@@ -65,9 +94,9 @@ export default function Dashboard() {
       <footer className="bg-white border-t border-slate-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 py-8 lg:px-8">
           <div className="text-center text-sm text-slate-600">
-            <p>&copy; 2025 KemisPay. All rights reserved. | 
+            <p>&copy; 2025 KemisPay. All rights reserved. |
                <button onClick={() => setLocation("/onboarding")} className="text-primary hover:text-primary/80 ml-1">FAQ & How It Works</button> |
-               <a href="#privacy" className="text-primary hover:text-primary/80 ml-1">Privacy Policy</a> | 
+               <a href="#privacy" className="text-primary hover:text-primary/80 ml-1">Privacy Policy</a> |
                <a href="#terms" className="text-primary hover:text-primary/80 ml-1">Terms of Service</a>
             </p>
           </div>
