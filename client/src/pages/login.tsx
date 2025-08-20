@@ -32,24 +32,46 @@ export default function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
+    console.log('Login attempt with:', data);
+    
     try {
       const response = await apiRequest("POST", "/api/auth/login", data);
+      console.log('Login response status:', response.status);
+      
+      if (!response.ok) {
+        const errorResult = await response.json();
+        console.error('Login failed:', errorResult);
+        toast({
+          title: "Login Failed",
+          description: errorResult.message || "Failed to login",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const result = await response.json();
+      console.log('Login success:', { hasToken: !!result.token, hasVendor: !!result.vendor });
 
       if (result.token && result.vendor) {
         await login(result.token, result.vendor);
+        toast({
+          title: "Success",
+          description: "Logged in successfully!",
+        });
         setLocation("/dashboard");
       } else {
+        console.error('Missing token or vendor in response:', result);
         toast({
           title: "Error",
-          description: result.message || "Failed to login",
+          description: "Invalid login response",
           variant: "destructive",
         });
       }
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to login",
+        description: error.message || "Network error occurred",
         variant: "destructive",
       });
     } finally {

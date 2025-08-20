@@ -46,14 +46,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
+      console.log('Login attempt:', req.body);
       const { email } = z.object({ email: z.string().email() }).parse(req.body);
+      console.log('Validated email:', email);
 
       let vendor = await storage.getVendorByEmail(email);
+      console.log('Existing vendor:', vendor ? 'found' : 'not found');
+      
       if (!vendor) {
+        console.log('Creating new vendor for:', email);
         vendor = await storage.createVendor({
           email,
           name: email.split('@')[0], // Use email prefix as default name
         });
+        console.log('Created vendor:', vendor.id);
       }
 
       // Create session token
@@ -66,9 +72,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt,
       });
 
+      console.log('Login successful for:', email);
       res.json({ token, vendor });
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error details:', {
+        error: error.message,
+        stack: error.stack,
+        body: req.body
+      });
+      
       let errorMessage = 'Login failed';
       
       if (error.issues && Array.isArray(error.issues)) {
