@@ -44,7 +44,7 @@ class StorjService {
         Metadata: {
           vendorId,
           documentType,
-          originalFileName: fileName,
+          originalFileName: fileName.replace(/[^a-zA-Z0-9.-]/g, '_'),
           uploadDate: new Date().toISOString(),
         },
       });
