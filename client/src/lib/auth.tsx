@@ -24,7 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,10 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       // Set token FIRST before making any requests
       setAuthToken(token);
-      
+
       // Small delay to ensure token is set globally
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       const response = await fetch('/api/vendor/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -89,11 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set token and storage first
     setAuthToken(token);
     localStorage.setItem('token', token);
-    
+
     // Then update auth state
     setVendor(vendorData);
     setIsAuthenticated(true);
-    
+
     // Small delay to ensure everything is set
     await new Promise(resolve => setTimeout(resolve, 100));
   };
@@ -122,13 +122,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      vendor, 
-      isAuthenticated, 
-      isLoading, 
-      login, 
-      logout, 
-      refreshVendor 
+    <AuthContext.Provider value={{
+      vendor,
+      isAuthenticated,
+      isLoading,
+      login,
+      logout,
+      refreshVendor
     }}>
       {children}
     </AuthContext.Provider>

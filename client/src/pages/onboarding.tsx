@@ -4,7 +4,6 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, DollarSign, CreditCard, Banknote, ArrowRight } from "lucide-react";
 
 const onboardingSteps = [
