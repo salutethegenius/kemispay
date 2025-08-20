@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { apiRequest } from "./queryClient";
 
-interface Vendor {
+export interface Vendor {
   id: string;
   email: string;
   name: string;

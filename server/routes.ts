@@ -52,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let vendor = await storage.getVendorByEmail(email);
       console.log('Existing vendor:', vendor ? 'found' : 'not found');
-      
+
       if (!vendor) {
         console.log('Creating new vendor for:', email);
         vendor = await storage.createVendor({
@@ -72,25 +72,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt,
       });
 
-      console.log('Login successful for:', email);
-      res.json({ token, vendor });
-    } catch (error: any) {
-      console.error('Login error details:', {
-        error: error.message,
-        stack: error.stack,
-        body: req.body
+      // Check if this is a new user (no payments or withdrawals)
+      const payments = await storage.getVendorPayments(vendor.id);
+      const isNewUser = payments.length === 0 && parseFloat(vendor.balance) === 0;
+
+      console.log('Login successful, returning:', {
+        token,
+        vendor: {
+          id: vendor.id,
+          email: vendor.email,
+          name: vendor.name,
+          isVerified: vendor.isVerified,
+          balance: vendor.balance,
+          totalEarned: vendor.totalEarned,
+          lastPayoutDate: vendor.lastPayoutDate,
+          bankAccount: vendor.bankAccount,
+          stripeCustomerId: vendor.stripeCustomerId,
+        },
+        isNewUser
       });
-      
-      let errorMessage = 'Login failed';
-      
-      if (error.issues && Array.isArray(error.issues)) {
-        // Zod validation error
-        errorMessage = error.issues.map((issue: any) => issue.message).join(', ');
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      res.status(400).json({ message: errorMessage });
+
+      res.json({
+        token,
+        vendor: {
+          id: vendor.id,
+          email: vendor.email,
+          name: vendor.name,
+          isVerified: vendor.isVerified,
+          balance: vendor.balance,
+          totalEarned: vendor.totalEarned,
+          lastPayoutDate: vendor.lastPayoutDate,
+          bankAccount: vendor.bankAccount,
+          stripeCustomerId: vendor.stripeCustomerId,
+        },
+        isNewUser
+      });
+    } catch (error: any) {
+      console.error('Login error:', error);
+      res.status(400).json({ message: error.message });
     }
   });
 

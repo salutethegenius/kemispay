@@ -33,11 +33,11 @@ export default function Login() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     console.log('Login attempt with:', data);
-    
+
     try {
       const response = await apiRequest("POST", "/api/auth/login", data);
       console.log('Login response status:', response.status);
-      
+
       if (!response.ok) {
         const errorResult = await response.json();
         console.error('Login failed:', errorResult);
@@ -50,7 +50,7 @@ export default function Login() {
       }
 
       const result = await response.json();
-      console.log('Login success:', { hasToken: !!result.token, hasVendor: !!result.vendor });
+      console.log('Login success:', { hasToken: !!result.token, hasVendor: !!result.vendor, isNewUser: result.isNewUser });
 
       if (result.token && result.vendor) {
         await login(result.token, result.vendor);
@@ -58,14 +58,9 @@ export default function Login() {
           title: "Success",
           description: "Logged in successfully!",
         });
-        
-        // Check if this is a new user (no KYC docs, no payments) - redirect to onboarding
-        // For existing users with activity, go to dashboard
-        if (!result.vendor.isVerified && result.vendor.totalEarned === '0.00') {
-          setLocation("/onboarding");
-        } else {
-          setLocation("/dashboard");
-        }
+
+        // Route new users to onboarding, existing users to dashboard
+        setLocation(result.isNewUser ? "/onboarding" : "/dashboard");
       } else {
         console.error('Missing token or vendor in response:', result);
         toast({
