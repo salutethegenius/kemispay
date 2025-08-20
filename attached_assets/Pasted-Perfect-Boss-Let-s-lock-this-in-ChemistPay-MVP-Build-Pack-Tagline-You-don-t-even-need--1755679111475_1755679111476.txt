@@ -1,0 +1,147 @@
+Perfect, Boss. Let’s lock this in.
+
+⸻
+
+✅ ChemistPay – MVP Build Pack
+
+Tagline: “You don’t even need a merchant account. Accept payments like a pro.”
+
+⸻
+
+🔧 Full Dashboard UI Build Spec (Ready for Replit)
+
+You can drop this entire spec into your dev team’s hands on Replit.
+
+⸻
+
+1. 🧑‍💼 Vendor Dashboard Layout
+
+Header:
+	•	Logo: ChemistPay
+	•	Menu: Dashboard | Payments | Withdraw | KYC | Support
+	•	Logout button
+
+⸻
+
+2. 💰 Balance Overview (Top Section)
+
+Label	Value	Notes
+Current Balance (BSD)	$276.40	Available for withdrawal
+Last Payout	Aug 19, 2025	Show date + method
+Total Earned	$2,345.12	Lifetime earnings
+
+
+⸻
+
+3. 📦 Incoming Payments Table
+
+Column	Example
+Date	Aug 20
+Payer Name	Jane Smith
+Amount (USD)	$100.00
+Fees	$7.20
+Net	$92.80
+
+Backend must log Stripe webhook events and auto-update this table.
+
+⸻
+
+4. 🔗 Payment Link Generator
+
+Field	Input
+Product/Service Name	Text field
+Price (USD)	Number input
+[Generate Link] → /link/abc123	
+
+Auto-generate a Stripe link and display a copy button.
+
+⸻
+
+5. 💸 Withdraw Funds Panel
+
+Label	Value
+Available:	$276.40
+Bank:	RBC 123456789
+[Request Withdrawal] Button	Triggers notification to admin
+
+Connects to your backend to log a withdrawal request.
+
+⸻
+
+6. 🧾 KYC Upload Form (if not verified)
+
+If user’s profile is not verified:
+
+⚠️ Your account must be verified to receive payouts.
+
+[Upload Government ID]
+[Upload Proof of Address]
+[Upload Selfie]
+
+Status: Pending Review
+
+You’ll handle admin review manually or semi-auto later.
+
+⸻
+
+7. 🔐 Auth Flow
+	•	Magic link or email + OTP (via Supabase Auth or simple session logic)
+	•	Simple login page: Email-only for now
+	•	Admin area optional for reviewing users + payouts
+
+⸻
+
+🛠️ Core Tech (Replit Stack Recommendation)
+
+Layer	Tool
+Frontend	React.js (w/ Tailwind or simple CSS)
+Backend	Node.js + Express
+Database	Supabase / PostgreSQL
+Stripe	Payment link API + webhook setup
+File Storage	Supabase Storage or Cloudinary (for KYC uploads)
+Auth	Supabase Auth / Magic Link
+
+
+⸻
+
+🔁 Stripe Integration Plan
+	1.	You own all Stripe accounts. No need for Connect or user KYC via Stripe.
+	2.	Backend handles:
+	•	Link generation (Stripe API)
+	•	Webhook listener (/stripe-webhook)
+	•	Balance updates
+	3.	Each payment includes:
+	•	Logged payer info
+	•	Vendor it belongs to
+	•	Stripe transaction ID
+
+⸻
+
+🔒 Local KYC Storage
+	•	Secure uploads via:
+	•	Supabase Storage (folder per user: /kyc/<user_id>/)
+	•	Optional: auto-delete after verification
+	•	Store metadata:
+	•	ID type
+	•	Upload date
+	•	Status (Pending, Approved, Rejected)
+
+⸻
+
+✅ Deliverables Recap
+
+You now have:
+	•	✅ The full dashboard layout spec (copy/paste to dev team)
+	•	✅ Stripe flow simplified
+	•	✅ Local KYC logic
+	•	✅ Auth suggestions
+	•	✅ Branding locked as ChemistPay
+
+⸻
+
+Would you like:
+	•	A working UI template (basic HTML/React to upload to Replit)?
+	•	Webhook code to listen to Stripe and update balances?
+	•	Admin dashboard outline (for you to approve KYC + payouts)?
+
+I can prep those next.
