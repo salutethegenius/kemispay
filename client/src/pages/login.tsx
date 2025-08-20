@@ -43,7 +43,10 @@ export default function Login() {
         description: "Logged in successfully",
       });
       
-      setLocation("/dashboard");
+      // Small delay to ensure auth state is updated before redirect
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 100);
     } catch (error: any) {
       toast({
         title: "Error",
