@@ -81,10 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (token: string, vendorData: Vendor) => {
+    // Set token first, then update state
     localStorage.setItem('token', token);
+    setAuthToken(token);
     setVendor(vendorData);
     setIsAuthenticated(true);
-    setAuthToken(token);
   };
 
   const logout = async () => {

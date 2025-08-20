@@ -58,7 +58,14 @@ export default function Login() {
           title: "Success",
           description: "Logged in successfully!",
         });
-        setLocation("/dashboard");
+        
+        // Check if this is a new user (no KYC docs, no payments) - redirect to onboarding
+        // For existing users with activity, go to dashboard
+        if (!result.vendor.isVerified && result.vendor.totalEarned === '0.00') {
+          setLocation("/onboarding");
+        } else {
+          setLocation("/dashboard");
+        }
       } else {
         console.error('Missing token or vendor in response:', result);
         toast({

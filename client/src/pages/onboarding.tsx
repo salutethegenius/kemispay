@@ -56,6 +56,10 @@ export default function Onboarding() {
     }
   };
 
+  const handleSkipToEnd = () => {
+    setCurrentStep(onboardingSteps.length - 1);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -70,9 +74,14 @@ export default function Onboarding() {
               </div>
               <h1 className="text-xl font-bold text-slate-800">KemisPay</h1>
             </div>
-            <Button variant="ghost" onClick={() => setLocation("/dashboard")}>
-              Skip to Dashboard
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={handleSkipToEnd}>
+                Skip to End
+              </Button>
+              <Button variant="ghost" onClick={() => setLocation("/dashboard")}>
+                Go to Dashboard
+              </Button>
+            </div>
           </div>
         </div>
       </div>
