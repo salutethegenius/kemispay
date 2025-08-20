@@ -55,7 +55,7 @@ export default function Support() {
   const { data: tickets, isLoading } = useQuery({
     queryKey: ["support-tickets"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth-token");
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/support/tickets", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -67,7 +67,7 @@ export default function Support() {
   // Create ticket mutation
   const createTicketMutation = useMutation({
     mutationFn: async (data: TicketForm) => {
-      const token = localStorage.getItem("auth-token");
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/support/tickets", {
         method: "POST",
         headers: {
