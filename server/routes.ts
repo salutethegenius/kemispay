@@ -247,11 +247,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes (for KYC review and withdrawal processing)
+  // Admin routes (for KYC review, withdrawal processing, and user management)
   app.get("/api/admin/kyc-pending", async (req, res) => {
     try {
       // This would need admin authentication in production
-      const documents = await storage.getVendorKycDocuments('all'); // Need to implement this method
+      const documents = await storage.getAllPendingKycDocuments();
       res.json(documents);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -268,10 +268,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const document = await storage.updateKycDocumentStatus(id, status, reviewNotes);
       
-      // If all required documents are approved, verify the vendor
-      // This logic would need to be implemented
+      // Check if all required documents are approved and verify vendor
+      if (status === 'approved') {
+        const vendorDocuments = await storage.getVendorKycDocuments(document.vendorId);
+        const requiredTypes = ['government_id', 'proof_of_address', 'selfie'];
+        const approvedTypes = vendorDocuments
+          .filter((doc: any) => doc.status === 'approved')
+          .map((doc: any) => doc.documentType);
+        
+        if (requiredTypes.every(type => approvedTypes.includes(type))) {
+          await storage.updateVendorVerification(document.vendorId, true);
+        }
+      }
 
       res.json(document);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/users", async (req, res) => {
+    try {
+      const users = await storage.getAllVendors();
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/:action", async (req, res) => {
+    try {
+      const { id, action } = req.params;
+      
+      let result;
+      switch (action) {
+        case 'verify':
+          result = await storage.updateVendorVerification(id, true);
+          break;
+        case 'unverify':
+          result = await storage.updateVendorVerification(id, false);
+          break;
+        case 'suspend':
+          // Implement suspension logic - for now just unverify
+          result = await storage.updateVendorVerification(id, false);
+          break;
+        default:
+          return res.status(400).json({ message: 'Invalid action' });
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/withdrawals", async (req, res) => {
+    try {
+      const withdrawals = await storage.getAllWithdrawalRequests();
+      res.json(withdrawals);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/withdrawals/:id/process", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, notes } = z.object({
+        status: z.enum(['approved', 'rejected']),
+        notes: z.string().optional(),
+      }).parse(req.body);
+
+      const withdrawal = await storage.processWithdrawalRequest(id, status, notes);
+      
+      // If approved, update vendor balance
+      if (status === 'approved') {
+        const currentBalance = parseFloat(withdrawal.vendor.balance);
+        const withdrawalAmount = parseFloat(withdrawal.amount);
+        const newBalance = currentBalance - withdrawalAmount;
+        
+        await storage.updateVendorBalance(withdrawal.vendorId, newBalance.toString());
+      }
+
+      res.json(withdrawal);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

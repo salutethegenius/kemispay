@@ -16,30 +16,39 @@ export interface IStorage {
   updateVendorVerification(id: string, isVerified: boolean): Promise<Vendor>;
   updateVendorStripeCustomerId(id: string, stripeCustomerId: string): Promise<Vendor>;
   updateVendorTotalEarned(id: string, totalEarned: string): Promise<Vendor>;
-  
+
   // Payment methods
   createPayment(payment: InsertPayment): Promise<Payment>;
   getVendorPayments(vendorId: string, limit?: number): Promise<Payment[]>;
-  
+
   // Payment link methods
   createPaymentLink(paymentLink: InsertPaymentLink): Promise<PaymentLink>;
   getVendorPaymentLinks(vendorId: string): Promise<PaymentLink[]>;
-  
+
   // Withdrawal methods
   createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
   getVendorWithdrawalRequests(vendorId: string): Promise<WithdrawalRequest[]>;
   updateWithdrawalStatus(id: string, status: string, notes?: string): Promise<WithdrawalRequest>;
-  
+
   // KYC methods
   createKycDocument(document: InsertKycDocument): Promise<KycDocument>;
   getVendorKycDocuments(vendorId: string): Promise<KycDocument[]>;
   getKycDocument(id: string): Promise<KycDocument | undefined>;
   updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument>;
-  
+
   // Session methods
   createSession(session: InsertSession): Promise<Session>;
   getSessionByToken(token: string): Promise<Session | undefined>;
   deleteSession(token: string): Promise<void>;
+
+  // Admin methods
+  getAllPendingKycDocuments(): Promise<any[]>;
+  getAllVendors(): Promise<Vendor[]>;
+  updateVendorVerification(vendorId: string, isVerified: boolean): Promise<Vendor>;
+  getAllWithdrawalRequests(): Promise<any[]>;
+  processWithdrawalRequest(id: string, status: string, notes?: string): Promise<any>;
+  updateVendorBalance(vendorId: string, newBalance: string): Promise<Vendor>;
+  updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -217,6 +226,107 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSession(token: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.token, token));
+  }
+
+  // Admin methods
+  async getAllPendingKycDocuments() {
+    return await db
+      .select({
+        id: kycDocuments.id,
+        vendorId: kycDocuments.vendorId,
+        documentType: kycDocuments.documentType,
+        fileName: kycDocuments.fileName,
+        fileSize: kycDocuments.fileSize,
+        status: kycDocuments.status,
+        uploadedAt: kycDocuments.uploadedAt,
+        vendor: {
+          id: vendors.id,
+          name: vendors.name,
+          email: vendors.email,
+        }
+      })
+      .from(kycDocuments)
+      .leftJoin(vendors, eq(kycDocuments.vendorId, vendors.id))
+      .where(eq(kycDocuments.status, 'pending'))
+      .orderBy(desc(kycDocuments.uploadedAt));
+  }
+
+  async getAllVendors() {
+    return await db
+      .select()
+      .from(vendors)
+      .orderBy(desc(vendors.createdAt));
+  }
+
+  async updateVendorVerification(vendorId: string, isVerified: boolean) {
+    const [vendor] = await db
+      .update(vendors)
+      .set({ isVerified })
+      .where(eq(vendors.id, vendorId))
+      .returning();
+    return vendor;
+  }
+
+  async getAllWithdrawalRequests() {
+    return await db
+      .select({
+        id: withdrawalRequests.id,
+        vendorId: withdrawalRequests.vendorId,
+        amount: withdrawalRequests.amount,
+        status: withdrawalRequests.status,
+        requestedAt: withdrawalRequests.requestedAt,
+        processedAt: withdrawalRequests.processedAt,
+        notes: withdrawalRequests.notes,
+        vendor: {
+          id: vendors.id,
+          name: vendors.name,
+          email: vendors.email,
+          balance: vendors.balance,
+          bankAccount: vendors.bankAccount,
+        }
+      })
+      .from(withdrawalRequests)
+      .leftJoin(vendors, eq(withdrawalRequests.vendorId, vendors.id))
+      .orderBy(desc(withdrawalRequests.requestedAt));
+  }
+
+  async processWithdrawalRequest(id: string, status: string, notes?: string) {
+    const [withdrawal] = await db
+      .update(withdrawalRequests)
+      .set({ 
+        status, 
+        notes,
+        processedAt: new Date() 
+      })
+      .where(eq(withdrawalRequests.id, id))
+      .returning();
+
+    // Get the vendor info for balance updates
+    const vendor = await this.getVendor(withdrawal.vendorId);
+    return { ...withdrawal, vendor };
+  }
+
+  async updateVendorBalance(vendorId: string, newBalance: string) {
+    const [vendor] = await db
+      .update(vendors)
+      .set({ balance: newBalance })
+      .where(eq(vendors.id, vendorId))
+      .returning();
+    return vendor;
+  }
+
+  async updateKycDocumentStatus(id: string, status: string, reviewNotes?: string) {
+    const [document] = await db
+      .update(kycDocuments)
+      .set({ 
+        status, 
+        reviewNotes,
+        reviewedAt: new Date() 
+      })
+      .where(eq(kycDocuments.id, id))
+      .returning();
+
+    return document;
   }
 }
 
