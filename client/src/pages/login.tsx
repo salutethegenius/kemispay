@@ -36,7 +36,7 @@ export default function Login() {
       const response = await apiRequest("POST", "/api/auth/login", data);
       const result = await response.json();
 
-      if (result.success) {
+      if (result.token && result.vendor) {
         await login(result.token, result.vendor);
         setLocation("/dashboard");
       } else {

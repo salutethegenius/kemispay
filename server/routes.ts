@@ -69,7 +69,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ token, vendor });
     } catch (error: any) {
       console.error('Login error:', error);
-      res.status(400).json({ success: false, message: error.message || 'Login failed' });
+      let errorMessage = 'Login failed';
+      
+      if (error.issues && Array.isArray(error.issues)) {
+        // Zod validation error
+        errorMessage = error.issues.map((issue: any) => issue.message).join(', ');
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      res.status(400).json({ message: errorMessage });
     }
   });
 
