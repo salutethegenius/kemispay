@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +16,8 @@ export default function Admin() {
   const [reviewNotes, setReviewNotes] = useState("");
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
   const [withdrawalNotes, setWithdrawalNotes] = useState("");
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [ticketResponse, setTicketResponse] = useState("");
 
   // KYC Data
   const { data: pendingKyc = [], isLoading: kycLoading } = useQuery({
@@ -29,8 +30,13 @@ export default function Admin() {
   });
 
   // Withdrawals Data
-  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery({
+  const { data: withdrawals, isLoading: withdrawalsLoading } = useQuery({
     queryKey: ["/api/admin/withdrawals"],
+  });
+
+  // Support Tickets Data
+  const { data: supportTickets, isLoading: supportLoading } = useQuery({
+    queryKey: ["/api/admin/support/tickets"],
   });
 
   // KYC Review Mutation
@@ -102,9 +108,33 @@ export default function Admin() {
     },
   });
 
+  // Respond to Ticket Mutation
+  const respondToTicketMutation = useMutation({
+    mutationFn: async ({ id, status, adminResponse }: { id: string; status: string; adminResponse?: string }) => {
+      return apiRequest("POST", `/api/admin/support/tickets/${id}/respond`, { status, adminResponse });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/support/tickets"] });
+      setSelectedTicket(null);
+      setTicketResponse("");
+      toast({
+        title: "Success",
+        description: "Ticket updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to respond to ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
+
   const handleKycReview = (status: 'approved' | 'rejected') => {
     if (!selectedDocument) return;
-    
+
     reviewMutation.mutate({
       id: selectedDocument.id,
       status,
@@ -114,7 +144,7 @@ export default function Admin() {
 
   const handleWithdrawalProcess = (status: 'approved' | 'rejected') => {
     if (!selectedWithdrawal) return;
-    
+
     processWithdrawalMutation.mutate({
       id: selectedWithdrawal.id,
       status,
@@ -126,7 +156,18 @@ export default function Admin() {
     updateUserMutation.mutate({ id: userId, action });
   };
 
-  if (kycLoading || usersLoading || withdrawalsLoading) {
+  const handleTicketResponse = (status: 'open' | 'closed' | 'in_progress') => {
+    if (!selectedTicket) return;
+
+    respondToTicketMutation.mutate({
+      id: selectedTicket.id,
+      status,
+      adminResponse: ticketResponse || undefined,
+    });
+  };
+
+
+  if (kycLoading || usersLoading || withdrawalsLoading || supportLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -147,6 +188,7 @@ export default function Admin() {
               </div>
               <span className="text-xl font-bold text-slate-800">KemisPay Admin</span>
             </div>
+            {/* Navigation would go here */}
           </div>
         </div>
       </header>
@@ -158,10 +200,11 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="kyc" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="kyc">KYC Review</TabsTrigger>
             <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="support">Support Tickets</TabsTrigger>
           </TabsList>
 
           {/* KYC Review Tab */}
@@ -198,7 +241,7 @@ export default function Admin() {
                         </div>
                       </div>
                     ))}
-                    
+
                     {!pendingKyc?.length && (
                       <div className="text-center py-8 text-slate-500">
                         No pending documents to review
@@ -301,7 +344,7 @@ export default function Admin() {
                         </div>
                       </div>
                     ))}
-                    
+
                     {!withdrawals?.filter((w: any) => w.status === 'pending').length && (
                       <div className="text-center py-8 text-slate-500">
                         No pending withdrawals
@@ -396,7 +439,7 @@ export default function Admin() {
                             <div>Last Payout: {user.lastPayoutDate ? new Date(user.lastPayoutDate).toLocaleDateString() : 'Never'}</div>
                           </div>
                         </div>
-                        
+
                         <div className="flex space-x-2">
                           {!user.isVerified && (
                             <Button
@@ -428,7 +471,7 @@ export default function Admin() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {!users?.length && (
                     <div className="text-center py-8 text-slate-500">
                       No users found
@@ -437,6 +480,116 @@ export default function Admin() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Support Tab */}
+          <TabsContent value="support">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Support Tickets</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {supportTickets?.map((ticket: any) => (
+                      <div
+                        key={ticket.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                          selectedTicket?.id === ticket.id 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-slate-200 hover:bg-slate-50'
+                        }`}
+                        onClick={() => setSelectedTicket(ticket)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="font-medium text-slate-800">Ticket #{ticket.id} - {ticket.subject}</div>
+                            <div className="text-sm text-slate-600">From: {ticket.user?.name} ({ticket.user?.email})</div>
+                          </div>
+                          <Badge variant={ticket.status === 'open' ? 'destructive' : ticket.status === 'in_progress' ? 'warning' : 'success'}>
+                            {ticket.status.toUpperCase()}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          Opened: {new Date(ticket.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+
+                    {!supportTickets?.length && (
+                      <div className="text-center py-8 text-slate-500">
+                        No support tickets found
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Respond to Ticket</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedTicket ? (
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-medium text-slate-800 mb-2">Ticket Details</h3>
+                        <div className="space-y-2 text-sm">
+                          <div><span className="font-medium">ID:</span> {selectedTicket.id}</div>
+                          <div><span className="font-medium">Subject:</span> {selectedTicket.subject}</div>
+                          <div><span className="font-medium">User:</span> {selectedTicket.user?.name} ({selectedTicket.user?.email})</div>
+                          <div><span className="font-medium">Message:</span> {selectedTicket.message}</div>
+                          <div><span className="font-medium">Opened:</span> {new Date(selectedTicket.createdAt).toLocaleDateString()}</div>
+                          <div><span className="font-medium">Status:</span> {selectedTicket.status}</div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Your Response
+                        </label>
+                        <Textarea
+                          value={ticketResponse}
+                          onChange={(e) => setTicketResponse(e.target.value)}
+                          placeholder="Add your response to the ticket..."
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="flex space-x-3">
+                        <Button
+                          onClick={() => handleTicketResponse('closed')}
+                          disabled={respondToTicketMutation.isPending}
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                        >
+                          {respondToTicketMutation.isPending ? 'Processing...' : 'Close Ticket'}
+                        </Button>
+                        <Button
+                          onClick={() => handleTicketResponse('in_progress')}
+                          disabled={respondToTicketMutation.isPending}
+                          variant="outline"
+                          className="flex-1"
+                        >
+                          {respondToTicketMutation.isPending ? 'Processing...' : 'In Progress'}
+                        </Button>
+                        <Button
+                          onClick={() => handleTicketResponse('open')}
+                          disabled={respondToTicketMutation.isPending}
+                          variant="destructive"
+                          className="flex-1"
+                        >
+                          {respondToTicketMutation.isPending ? 'Processing...' : 'Reopen Ticket'}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-slate-500">
+                      Select a ticket to respond
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>

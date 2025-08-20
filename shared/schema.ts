@@ -2,6 +2,7 @@ import { sql, relations } from "drizzle-orm";
 import { pgTable, text, varchar, decimal, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { nanoid } from 'nanoid';
 
 export const vendors = pgTable("vendors", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -66,11 +67,25 @@ export const kycDocuments = pgTable("kyc_documents", {
 });
 
 export const sessions = pgTable("sessions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  vendorId: varchar("vendor_id").notNull().references(() => vendors.id),
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  vendorId: text("vendor_id").notNull().references(() => vendors.id),
   token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").default(sql`now()`),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const supportTickets = pgTable("support_tickets", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  vendorId: text("vendor_id").notNull().references(() => vendors.id),
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  priority: text("priority").notNull().default("medium"), // low, medium, high, urgent
+  status: text("status").notNull().default("open"), // open, in_progress, resolved, closed
+  category: text("category").notNull(), // technical, billing, kyc, withdrawal, general
+  adminResponse: text("admin_response"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  resolvedAt: timestamp("resolved_at"),
 });
 
 // Relations
@@ -150,6 +165,14 @@ export const insertSessionSchema = createInsertSchema(sessions).omit({
   createdAt: true,
 });
 
+// Insert schemas for support tickets
+export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  resolvedAt: true,
+});
+
 // Types
 export type Vendor = typeof vendors.$inferSelect;
 export type InsertVendor = z.infer<typeof insertVendorSchema>;
@@ -162,4 +185,8 @@ export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSche
 export type KycDocument = typeof kycDocuments.$inferSelect;
 export type InsertKycDocument = z.infer<typeof insertKycDocumentSchema>;
 export type Session = typeof sessions.$inferSelect;
-export type InsertSession = z.infer<typeof insertSessionSchema>;
+export type InsertSession = typeof sessions.$inferInsert;
+
+// Types for support tickets
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;

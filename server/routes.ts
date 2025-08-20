@@ -173,6 +173,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Support ticket routes
+  app.post("/api/support/tickets", authenticateVendor, async (req, res) => {
+    try {
+      const { subject, description, priority, category } = z.object({
+        subject: z.string().min(1).max(200),
+        description: z.string().min(1).max(2000),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']),
+        category: z.enum(['technical', 'billing', 'kyc', 'withdrawal', 'general']),
+      }).parse(req.body);
+
+      const ticket = await storage.createSupportTicket({
+        vendorId: req.vendor.id,
+        subject,
+        description,
+        priority,
+        category,
+      });
+
+      res.json(ticket);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/support/tickets", authenticateVendor, async (req, res) => {
+    try {
+      const tickets = await storage.getVendorSupportTickets(req.vendor.id);
+      res.json(tickets);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // KYC routes
   app.post("/api/kyc/upload", authenticateVendor, async (req, res) => {
     try {
@@ -351,6 +384,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json(withdrawal);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Admin support routes
+  app.get("/api/admin/support/tickets", async (req, res) => {
+    try {
+      const tickets = await storage.getAllSupportTickets();
+      res.json(tickets);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/support/tickets/:id/respond", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminResponse } = z.object({
+        status: z.enum(['open', 'in_progress', 'resolved', 'closed']),
+        adminResponse: z.string().optional(),
+      }).parse(req.body);
+
+      const ticket = await storage.updateSupportTicketStatus(id, status, adminResponse);
+      res.json(ticket);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

@@ -106,12 +106,12 @@ export default function Header() {
                 </svg>
                 KYC
               </button>
-              <button onClick={() => scrollToSection('support')} className="flex items-center w-full text-left py-2 text-slate-600">
+              <a href="/support" className="flex items-center w-full text-left py-2 text-slate-600">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
                 </svg>
                 Support
-              </button>
+              </a>
               <a href="/admin" className="flex items-center w-full text-left py-2 text-slate-600">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>

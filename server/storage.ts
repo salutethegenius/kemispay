@@ -1,8 +1,9 @@
 import { 
-  vendors, payments, paymentLinks, withdrawalRequests, kycDocuments, sessions,
+  vendors, payments, paymentLinks, withdrawalRequests, kycDocuments, sessions, supportTickets,
   type Vendor, type InsertVendor, type Payment, type InsertPayment,
   type PaymentLink, type InsertPaymentLink, type WithdrawalRequest, type InsertWithdrawalRequest,
-  type KycDocument, type InsertKycDocument, type Session, type InsertSession
+  type KycDocument, type InsertKycDocument, type Session, type InsertSession,
+  type SupportTicket, type InsertSupportTicket
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -40,6 +41,13 @@ export interface IStorage {
   createSession(session: InsertSession): Promise<Session>;
   getSessionByToken(token: string): Promise<Session | undefined>;
   deleteSession(token: string): Promise<void>;
+
+  // Support ticket methods
+  createSupportTicket(ticket: InsertSupportTicket): Promise<SupportTicket>;
+  getVendorSupportTickets(vendorId: string): Promise<SupportTicket[]>;
+  getSupportTicket(id: string): Promise<SupportTicket | undefined>;
+  updateSupportTicketStatus(id: string, status: string, adminResponse?: string): Promise<SupportTicket>;
+  getAllSupportTickets(): Promise<any[]>;
 
   // Admin methods
   getAllPendingKycDocuments(): Promise<any[]>;
@@ -226,6 +234,70 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSession(token: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.token, token));
+  }
+
+  // Support ticket methods
+  async createSupportTicket(insertTicket: InsertSupportTicket): Promise<SupportTicket> {
+    const [ticket] = await db
+      .insert(supportTickets)
+      .values(insertTicket)
+      .returning();
+    return ticket;
+  }
+
+  async getVendorSupportTickets(vendorId: string): Promise<SupportTicket[]> {
+    return await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.vendorId, vendorId))
+      .orderBy(desc(supportTickets.createdAt));
+  }
+
+  async getSupportTicket(id: string): Promise<SupportTicket | undefined> {
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, id));
+    return ticket || undefined;
+  }
+
+  async updateSupportTicketStatus(id: string, status: string, adminResponse?: string): Promise<SupportTicket> {
+    const [ticket] = await db
+      .update(supportTickets)
+      .set({ 
+        status, 
+        adminResponse,
+        updatedAt: new Date(),
+        resolvedAt: status === 'resolved' || status === 'closed' ? new Date() : undefined
+      })
+      .where(eq(supportTickets.id, id))
+      .returning();
+    return ticket;
+  }
+
+  async getAllSupportTickets(): Promise<any[]> {
+    return await db
+      .select({
+        id: supportTickets.id,
+        vendorId: supportTickets.vendorId,
+        subject: supportTickets.subject,
+        description: supportTickets.description,
+        priority: supportTickets.priority,
+        status: supportTickets.status,
+        category: supportTickets.category,
+        adminResponse: supportTickets.adminResponse,
+        createdAt: supportTickets.createdAt,
+        updatedAt: supportTickets.updatedAt,
+        resolvedAt: supportTickets.resolvedAt,
+        vendor: {
+          id: vendors.id,
+          name: vendors.name,
+          email: vendors.email,
+        }
+      })
+      .from(supportTickets)
+      .leftJoin(vendors, eq(supportTickets.vendorId, vendors.id))
+      .orderBy(desc(supportTickets.createdAt));
   }
 
   // Admin methods
