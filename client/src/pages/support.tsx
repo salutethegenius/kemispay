@@ -312,38 +312,50 @@ export default function Support() {
             <Card>
               <CardHeader>
                 <CardTitle>Fee Structure</CardTitle>
-                <p className="text-slate-600">Transparent pricing with example based on $100 USD payment:</p>
+                <p className="text-slate-600">Transparent pricing with example based on $500 USD payment:</p>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                     <div>
                       <div className="font-medium">Customer pays</div>
-                      <div className="text-sm text-slate-600">USD card</div>
+                      <div className="text-sm text-slate-600">USD card payment</div>
                     </div>
-                    <div className="font-bold text-blue-600">$100.00</div>
+                    <div className="font-bold text-blue-600">$500.00</div>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                     <div>
                       <div className="font-medium">Stripe fee (3.9% + $0.30)</div>
-                      <div className="text-sm text-slate-600">International processing</div>
+                      <div className="text-sm text-slate-600">International card processing</div>
                     </div>
-                    <div className="font-bold text-red-600">–$4.20</div>
+                    <div className="font-bold text-red-600">–$19.80</div>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                     <div>
-                      <div className="font-medium">FX/Platform fee (1% + 2%)</div>
-                      <div className="text-sm text-slate-600">Your profit + conversion buffer</div>
+                      <div className="font-medium">FX/Platform fee (3%)</div>
+                      <div className="text-sm text-slate-600">Currency conversion + platform</div>
                     </div>
-                    <div className="font-bold text-red-600">–$3.00</div>
+                    <div className="font-bold text-red-600">–$15.00</div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">Wire transfer fee</div>
+                      <div className="text-sm text-slate-600">One flat fee per payout (US → Bahamas)</div>
+                    </div>
+                    <div className="font-bold text-red-600">–$25.00</div>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border-2 border-green-200">
                     <div>
                       <div className="font-medium">Net to vendor (BSD)</div>
-                      <div className="text-sm text-slate-600">Local bank payout in BSD</div>
+                      <div className="text-sm text-slate-600">Deposited directly to your Bahamian bank</div>
                     </div>
-                    <div className="font-bold text-green-600">$92.80</div>
+                    <div className="font-bold text-green-600">$440.20</div>
                   </div>
+                </div>
+                <div className="mt-4 p-3 bg-slate-100 rounded-lg">
+                  <p className="text-sm text-slate-600">
+                    <strong>💡 Smart Strategy:</strong> The $25 wire fee is flat regardless of amount. Consolidate monthly to maximize earnings!
+                  </p>
                 </div>
               </CardContent>
             </Card>

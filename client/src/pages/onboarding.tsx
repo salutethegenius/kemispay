@@ -34,10 +34,11 @@ const onboardingSteps = [
 ];
 
 const feeStructure = [
-  { stage: "Customer pays", amount: "$100.00", notes: "USD card", type: "positive" },
-  { stage: "Stripe fee (3.9% + $0.30)", amount: "–$4.20", notes: "International processing", type: "negative" },
-  { stage: "FX/Platform fee (1% + 2%)", amount: "–$3.00", notes: "Local bank transfer processing fees", type: "negative" },
-  { stage: "Net to vendor (BSD)", amount: "$92.80", notes: "Local bank payout in BSD", type: "final" }
+  { stage: "Customer pays", amount: "$500.00", notes: "USD card payment", type: "positive" },
+  { stage: "Stripe fee (3.9% + $0.30)", amount: "–$19.80", notes: "International card processing", type: "negative" },
+  { stage: "FX/Platform fee (3%)", amount: "–$15.00", notes: "Currency conversion + platform", type: "negative" },
+  { stage: "Wire transfer fee", amount: "–$25.00", notes: "One flat fee per payout (US → Bahamas)", type: "negative" },
+  { stage: "Net to vendor (BSD)", amount: "$440.20", notes: "Deposited directly to your Bahamian bank", type: "final" }
 ];
 
 export default function Onboarding() {
@@ -111,9 +112,14 @@ export default function Onboarding() {
           <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">
             Welcome to KemisPay!
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            You don't even need a merchant account. Accept payments like a pro and get paid in BSD directly to your local bank account.
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-6">
+            Are you missing out on $500+ in credit card payments each month? Accept cards online instantly and get your money in your Bahamian bank — no merchant account required.
           </p>
+          <div className="bg-primary/10 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-sm text-primary font-medium">
+              💡 One flat $25 wire transfer fee per payout. Consolidate monthly, keep more in your pocket.
+            </p>
+          </div>
         </div>
 
         {/* How It Works Steps */}
@@ -155,7 +161,7 @@ export default function Onboarding() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="text-xl">Transparent Fee Structure</CardTitle>
-            <p className="text-slate-600">Here's exactly how fees work with a $100 USD payment example:</p>
+            <p className="text-slate-600">Here's exactly how fees work with a $500 USD payment example:</p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -180,9 +186,13 @@ export default function Onboarding() {
               ))}
             </div>
             <div className="mt-6 p-4 bg-slate-100 rounded-lg">
-              <div className="text-sm text-slate-600">
-                <strong>Note:</strong> Fees include Stripe processing, international FX conversion, and our platform fee. 
-                You receive the net amount directly in BSD to your local bank account.
+              <div className="text-sm text-slate-600 space-y-2">
+                <p><strong>Smart Payout Strategy:</strong> The $25 wire fee is flat regardless of amount. Consolidate your payouts monthly to maximize your earnings:</p>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>• On $500 → $25 fee (5%)</div>
+                  <div>• On $2,000+ → $25 fee (1.25%)</div>
+                </div>
+                <p className="pt-2"><strong>Perfect for:</strong> Selling event tickets 🎟️ • Offering services 💼 • Running online stores 🛒</p>
               </div>
             </div>
           </CardContent>
@@ -196,22 +206,22 @@ export default function Onboarding() {
           <CardContent className="space-y-6">
             <div>
               <h3 className="font-semibold text-slate-800 mb-2">Do I need a merchant account?</h3>
-              <p className="text-slate-600">No! That's the beauty of KemisPay. We handle all the payment processing for you, so you can start accepting payments immediately without setting up your own merchant account.</p>
+              <p className="text-slate-600">No! KemisPay gives you the flexibility big banks can't. We handle all payment processing, so you can start accepting cards online instantly without any merchant account setup.</p>
             </div>
             
             <div>
-              <h3 className="font-semibold text-slate-800 mb-2">What currencies can customers pay in?</h3>
-              <p className="text-slate-600">Customers can pay in USD using any major credit or debit card. We handle the currency conversion and pay you in BSD.</p>
+              <h3 className="font-semibold text-slate-800 mb-2">Can I integrate with my website?</h3>
+              <p className="text-slate-600">Absolutely! Unlike local competitors, KemisPay works with Shopify, WordPress, Wix, Squarespace, and custom sites. Your customers checkout directly on your site — no clunky redirects or standalone forms.</p>
             </div>
             
             <div>
-              <h3 className="font-semibold text-slate-800 mb-2">How long does it take to receive payments?</h3>
-              <p className="text-slate-600">Payments are processed instantly, and you can request withdrawals to your local bank account. Withdrawal processing typically takes 1-3 business days.</p>
+              <h3 className="font-semibold text-slate-800 mb-2">How does the wire transfer fee work?</h3>
+              <p className="text-slate-600">It's one flat $25 fee per payout to your Bahamian bank — no matter how much you consolidate. Smart vendors batch their payouts monthly to minimize this cost.</p>
             </div>
             
             <div>
               <h3 className="font-semibold text-slate-800 mb-2">What's the minimum withdrawal amount?</h3>
-              <p className="text-slate-600">The minimum withdrawal amount is $25 BSD. This helps reduce processing costs and ensures efficient transfers.</p>
+              <p className="text-slate-600">The minimum withdrawal amount is $25 BSD. We recommend consolidating larger amounts to maximize the value of the flat wire transfer fee.</p>
             </div>
             
             <div>
