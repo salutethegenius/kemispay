@@ -18,7 +18,7 @@ export class EmailService {
   static async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
       const command = new SendEmailCommand({
-        Source: "waitlist@kemispay.com",
+        Source: "KemisPay Waitlist <waitlist@kemispay.com>",
         Destination: {
           ToAddresses: [options.to],
         },
