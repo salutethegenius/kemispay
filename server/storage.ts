@@ -1,9 +1,9 @@
 import { 
-  vendors, payments, paymentLinks, withdrawalRequests, kycDocuments, sessions, supportTickets,
+  vendors, payments, paymentLinks, withdrawalRequests, kycDocuments, sessions, supportTickets, waitlist,
   type Vendor, type InsertVendor, type Payment, type InsertPayment,
   type PaymentLink, type InsertPaymentLink, type WithdrawalRequest, type InsertWithdrawalRequest,
   type KycDocument, type InsertKycDocument, type Session, type InsertSession,
-  type SupportTicket, type InsertSupportTicket
+  type SupportTicket, type InsertSupportTicket, type Waitlist, type InsertWaitlist
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -57,6 +57,12 @@ export interface IStorage {
   processWithdrawalRequest(id: string, status: string, notes?: string): Promise<any>;
   updateVendorBalance(vendorId: string, newBalance: string): Promise<Vendor>;
   updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument>;
+
+  // Waitlist methods
+  createWaitlistEntry(entry: InsertWaitlist): Promise<Waitlist>;
+  getWaitlistByEmail(email: string): Promise<Waitlist | undefined>;
+  getAllWaitlistEntries(): Promise<Waitlist[]>;
+  updateWaitlistConfirmation(id: string): Promise<Waitlist>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -368,7 +374,29 @@ export class DatabaseStorage implements IStorage {
     return { ...withdrawal, vendor };
   }
 
+  // Waitlist methods
+  async createWaitlistEntry(entry: InsertWaitlist): Promise<Waitlist> {
+    const [result] = await db.insert(waitlist).values(entry).returning();
+    return result;
+  }
 
+  async getWaitlistByEmail(email: string): Promise<Waitlist | undefined> {
+    const [result] = await db.select().from(waitlist).where(eq(waitlist.email, email));
+    return result || undefined;
+  }
+
+  async getAllWaitlistEntries(): Promise<Waitlist[]> {
+    return await db.select().from(waitlist).orderBy(desc(waitlist.createdAt));
+  }
+
+  async updateWaitlistConfirmation(id: string): Promise<Waitlist> {
+    const [result] = await db
+      .update(waitlist)
+      .set({ confirmationSent: true })
+      .where(eq(waitlist.id, id))
+      .returning();
+    return result;
+  }
 }
 
 export const storage = new DatabaseStorage();

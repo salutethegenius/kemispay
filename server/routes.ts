@@ -477,6 +477,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Waitlist routes
+  app.post("/api/waitlist/join", async (req, res) => {
+    try {
+      const { name, email, phoneNumber } = z.object({
+        name: z.string().min(1, "Name is required"),
+        email: z.string().email("Invalid email address"),
+        phoneNumber: z.string().min(1, "Phone number is required"),
+      }).parse(req.body);
+
+      // Check if email already exists
+      const existing = await storage.getWaitlistByEmail(email);
+      if (existing) {
+        return res.status(400).json({ message: "Email already on waitlist" });
+      }
+
+      const entry = await storage.createWaitlistEntry({
+        name,
+        email,
+        phoneNumber,
+      });
+
+      // TODO: Send confirmation email here
+      // For now, mark as if confirmation was sent
+      await storage.updateWaitlistConfirmation(entry.id);
+
+      res.json({ 
+        success: true, 
+        message: "You're in! Check your email for confirmation." 
+      });
+    } catch (error: any) {
+      if (error.issues && Array.isArray(error.issues)) {
+        const errorMessage = error.issues.map((issue: any) => issue.message).join(', ');
+        return res.status(400).json({ message: errorMessage });
+      }
+      res.status(400).json({ message: error.message || "Failed to join waitlist" });
+    }
+  });
+
+  app.get("/api/waitlist/entries", async (req, res) => {
+    try {
+      const entries = await storage.getAllWaitlistEntries();
+      res.json(entries);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

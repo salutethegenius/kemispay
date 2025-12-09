@@ -88,6 +88,15 @@ export const supportTickets = pgTable("support_tickets", {
   resolvedAt: timestamp("resolved_at"),
 });
 
+export const waitlist = pgTable("waitlist", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  phoneNumber: text("phone_number").notNull(),
+  createdAt: timestamp("created_at").default(sql`now()`),
+  confirmationSent: boolean("confirmation_sent").default(false),
+});
+
 // Relations
 export const vendorsRelations = relations(vendors, ({ many }) => ({
   payments: many(payments),
@@ -190,3 +199,13 @@ export type InsertSession = typeof sessions.$inferInsert;
 // Types for support tickets
 export type SupportTicket = typeof supportTickets.$inferSelect;
 export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
+
+// Waitlist schema and types
+export const insertWaitlistSchema = createInsertSchema(waitlist).omit({
+  id: true,
+  createdAt: true,
+  confirmationSent: true,
+});
+
+export type Waitlist = typeof waitlist.$inferSelect;
+export type InsertWaitlist = z.infer<typeof insertWaitlistSchema>;

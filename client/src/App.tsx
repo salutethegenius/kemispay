@@ -10,12 +10,14 @@ import NotFound from "./pages/not-found";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
+import Waitlist from "@/pages/waitlist";
 import { AuthProvider } from "@/lib/auth";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Login} />
+      <Route path="/" component={Waitlist} />
+      <Route path="/waitlist" component={Waitlist} />
       <Route path="/login" component={Login} />
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/dashboard" component={Dashboard} />
