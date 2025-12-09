@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { stripeService } from "./services/stripe";
 import { storjService } from "./services/storj";
+import { EmailService } from "./services/email";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 
@@ -498,9 +499,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phoneNumber,
       });
 
-      // TODO: Send confirmation email here
-      // For now, mark as if confirmation was sent
-      await storage.updateWaitlistConfirmation(entry.id);
+      // Send confirmation email
+      const emailSent = await EmailService.sendWaitlistConfirmation(name, email);
+      
+      if (emailSent) {
+        await storage.updateWaitlistConfirmation(entry.id);
+      }
 
       res.json({ 
         success: true, 
