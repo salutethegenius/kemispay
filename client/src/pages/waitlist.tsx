@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -19,8 +20,11 @@ type WaitlistForm = z.infer<typeof waitlistSchema>;
 
 export default function Waitlist() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const trustRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<WaitlistForm>({
     resolver: zodResolver(waitlistSchema),
@@ -76,7 +80,13 @@ export default function Waitlist() {
             </div>
             <span className="text-white font-bold text-xl">KemisPay</span>
           </div>
-          <Button className="bg-blue-500 hover:bg-blue-600">Request Early Access</Button>
+          <Button 
+            className="bg-blue-500 hover:bg-blue-600"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            data-testid="button-request-access"
+          >
+            Request Early Access
+          </Button>
         </div>
       </nav>
 
@@ -106,7 +116,7 @@ export default function Waitlist() {
                               <Input
                                 placeholder="Your name"
                                 {...field}
-                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus-visible:ring-blue-500"
+                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-white focus-visible:ring-blue-500"
                                 disabled={isLoading}
                                 data-testid="input-name"
                               />
@@ -128,7 +138,7 @@ export default function Waitlist() {
                                 placeholder="Your email"
                                 type="email"
                                 {...field}
-                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus-visible:ring-blue-500"
+                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-white focus-visible:ring-blue-500"
                                 disabled={isLoading}
                                 data-testid="input-email"
                               />
@@ -149,7 +159,7 @@ export default function Waitlist() {
                               <Input
                                 placeholder="Phone number"
                                 {...field}
-                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus-visible:ring-blue-500"
+                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-white focus-visible:ring-blue-500"
                                 disabled={isLoading}
                                 data-testid="input-phone"
                               />
@@ -196,7 +206,7 @@ export default function Waitlist() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-800/50">
+      <section ref={featuresRef} className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-800/50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-white text-center mb-16">Why KemisPay?</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -247,7 +257,7 @@ export default function Waitlist() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
+      <section ref={trustRef} className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-white text-center mb-16">Built for the Bahamas</h2>
           <div className="grid md:grid-cols-2 gap-8">
@@ -285,21 +295,53 @@ export default function Waitlist() {
             <div>
               <h4 className="text-white font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white transition">About</a></li>
-                <li><a href="#" className="hover:text-white transition">Pricing</a></li>
+                <li>
+                  <button 
+                    onClick={() => trustRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="hover:text-white transition text-left"
+                    data-testid="link-why-kemispay"
+                  >
+                    Why KemisPay
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => featuresRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="hover:text-white transition text-left"
+                    data-testid="link-local"
+                  >
+                    Local
+                  </button>
+                </li>
                 <li><a href="#" className="hover:text-white transition">Contact</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition">Terms</a></li>
+                <li>
+                  <button 
+                    onClick={() => setLocation('/privacy')}
+                    className="hover:text-white transition text-left"
+                    data-testid="link-privacy"
+                  >
+                    Privacy
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation('/terms')}
+                    className="hover:text-white transition text-left"
+                    data-testid="link-terms"
+                  >
+                    Terms
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-slate-700 pt-8 text-center text-slate-500 text-sm">
-            <p>© 2025 KemisPay. Made for the Bahamas 🇧🇸</p>
+            <p>© 2025 KemisPay LLC, a subsidiary of Kemis Group of Companies Inc. Made for the Bahamas 🇧🇸</p>
           </div>
         </div>
       </footer>

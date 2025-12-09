@@ -11,6 +11,8 @@ import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
 import Waitlist from "@/pages/waitlist";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
 import { AuthProvider } from "@/lib/auth";
 
 function Router() {
@@ -18,6 +20,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Waitlist} />
       <Route path="/waitlist" component={Waitlist} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       <Route path="/login" component={Login} />
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/dashboard" component={Dashboard} />
