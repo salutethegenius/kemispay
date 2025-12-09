@@ -116,7 +116,7 @@ export default function Waitlist() {
                               <Input
                                 placeholder="Your name"
                                 {...field}
-                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-white focus-visible:ring-blue-500"
+                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-white focus-visible:ring-blue-500"
                                 disabled={isLoading}
                                 data-testid="input-name"
                               />
@@ -138,7 +138,7 @@ export default function Waitlist() {
                                 placeholder="Your email"
                                 type="email"
                                 {...field}
-                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-white focus-visible:ring-blue-500"
+                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-white focus-visible:ring-blue-500"
                                 disabled={isLoading}
                                 data-testid="input-email"
                               />
@@ -159,7 +159,7 @@ export default function Waitlist() {
                               <Input
                                 placeholder="Phone number"
                                 {...field}
-                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-white focus-visible:ring-blue-500"
+                                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-white focus-visible:ring-blue-500"
                                 disabled={isLoading}
                                 data-testid="input-phone"
                               />
