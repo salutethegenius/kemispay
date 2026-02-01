@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import Header from "@/components/layout/header";
@@ -8,12 +8,12 @@ import PaymentsTable from "@/components/dashboard/payments-table";
 import WithdrawPanel from "@/components/dashboard/withdraw-panel";
 import KycUpload from "@/components/dashboard/kyc-upload";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Dashboard() {
-  const { vendor, isAuthenticated } = useAuth();
+  const { vendor, isAuthenticated, refreshVendor } = useAuth();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -21,32 +21,15 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, setLocation]);
 
-  const { data: paymentLinks, isLoading: isLoadingLinks } = useQuery({
-    queryKey: ["payment-links"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/payment-links");
-      return response;
-    },
-    enabled: isAuthenticated && !!vendor,
-  });
-
-  const { data: payments, isLoading: isLoadingPayments } = useQuery({
-    queryKey: ["payments"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/payments");
-      return response;
-    },
-    enabled: isAuthenticated && !!vendor,
-  });
-
-  const { data: kycDocuments } = useQuery({
-    queryKey: ["kyc-documents"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/kyc");
-      return response;
-    },
-    enabled: isAuthenticated && !!vendor,
-  });
+  // Refetch payments and vendor balance once when dashboard mounts (so new Transak payments appear)
+  const hasRefetched = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (hasRefetched.current) return;
+    hasRefetched.current = true;
+    queryClient.invalidateQueries({ queryKey: ["/api/payments"] });
+    refreshVendor();
+  }, [isAuthenticated, queryClient, refreshVendor]);
 
   if (!isAuthenticated) {
     return (
@@ -76,16 +59,16 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6 lg:space-y-8">
             <PaymentLinkGenerator />
             <div id="payments">
-              <PaymentsTable data={payments} isLoading={isLoadingPayments} />
+              <PaymentsTable />
             </div>
           </div>
 
           <div className="space-y-6 lg:space-y-8">
             <div id="withdraw">
-              <WithdrawPanel vendor={vendor} />
+              <WithdrawPanel vendor={vendor} onWithdrawalSuccess={refreshVendor} />
             </div>
             <div id="kyc">
-              <KycUpload vendor={vendor} kycDocuments={kycDocuments} />
+              <KycUpload vendor={vendor} />
             </div>
           </div>
         </div>
@@ -96,8 +79,9 @@ export default function Dashboard() {
           <div className="text-center text-sm text-slate-600">
             <p>&copy; 2025 KemisPay. All rights reserved. |
                <button onClick={() => setLocation("/onboarding")} className="text-primary hover:text-primary/80 ml-1">FAQ & How It Works</button> |
-               <a href="#privacy" className="text-primary hover:text-primary/80 ml-1">Privacy Policy</a> |
-               <a href="#terms" className="text-primary hover:text-primary/80 ml-1">Terms of Service</a>
+               <a href="/#rates" className="text-primary hover:text-primary/80 ml-1">Compare rates</a> |
+               <button onClick={() => setLocation("/privacy")} className="text-primary hover:text-primary/80 ml-1">Privacy Policy</button> |
+               <button onClick={() => setLocation("/terms")} className="text-primary hover:text-primary/80 ml-1">Terms of Service</button>
             </p>
           </div>
         </div>

@@ -18,9 +18,10 @@ type WithdrawalForm = z.infer<typeof withdrawalSchema>;
 
 interface WithdrawPanelProps {
   vendor: any;
+  onWithdrawalSuccess?: () => void | Promise<void>;
 }
 
-export default function WithdrawPanel({ vendor }: WithdrawPanelProps) {
+export default function WithdrawPanel({ vendor, onWithdrawalSuccess }: WithdrawPanelProps) {
   const { toast } = useToast();
   const availableBalance = parseFloat(vendor?.balance || '0');
 
@@ -41,9 +42,9 @@ export default function WithdrawPanel({ vendor }: WithdrawPanelProps) {
       const response = await apiRequest("POST", "/api/withdrawals", data);
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/vendor/profile"] });
+    onSuccess: async () => {
       form.reset();
+      await onWithdrawalSuccess?.();
       toast({
         title: "Success",
         description: "Withdrawal request submitted successfully",

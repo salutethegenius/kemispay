@@ -15,8 +15,10 @@ export default function PaymentsTable() {
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const itemsPerPage = 10;
 
-  const { data: payments = [], isLoading } = useQuery({
+  const { data: payments = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/payments"],
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000, // refetch when stale so new Transak payments appear
   });
 
   const formatCurrency = (amount: string | number) => {
@@ -42,12 +44,15 @@ export default function PaymentsTable() {
     });
   };
 
-  // Filter payments based on search term and status
+  // Filter payments based on search term and status (Transak payments often have null payerName/payerEmail)
   const filteredPayments = payments.filter((payment: any) => {
-    const matchesSearch = payment.payerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.payerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.productName?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
+    const term = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      (payment.payerName ?? "").toLowerCase().includes(term) ||
+      (payment.payerEmail ?? "").toLowerCase().includes(term) ||
+      (payment.productName ?? "").toLowerCase().includes(term);
+    const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -58,9 +63,9 @@ export default function PaymentsTable() {
 
   const handleExport = () => {
     const csvContent = "data:text/csv;charset=utf-8," + 
-      "Date,Payer Name,Payer Email,Product,Amount,Fees,Net Amount,Status\n" +
-      filteredPayments.map(payment => 
-        `${formatDate(payment.createdAt)},"${payment.payerName}","${payment.payerEmail || ''}","${payment.productName || ''}",${payment.amount},${payment.fees},${payment.netAmount},${payment.status}`
+      "Date,Payer Name,Payer Email,Product,Amount,Platform Fee,Net Amount,Status\n" +
+      filteredPayments.map((payment: any) => 
+        `${formatDate(payment.createdAt)},"${payment.payerName || ''}","${payment.payerEmail || ''}","${payment.productName || ''}",${payment.amount},${payment.platformFee ?? payment.fees ?? 0},${payment.netAmount},${payment.status}`
       ).join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -159,7 +164,7 @@ export default function PaymentsTable() {
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <span className="text-sm text-slate-600">{payment.productName}</span>
-                  <span className="text-xs text-slate-500">Fees: {formatCurrency(payment.fees)}</span>
+                  <span className="text-xs text-slate-500">Fee: {formatCurrency(payment.platformFee ?? payment.fees ?? 0)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -187,7 +192,7 @@ export default function PaymentsTable() {
                 <th className="text-left py-3 px-4 font-medium text-slate-700">Payer Details</th>
                 <th className="text-left py-3 px-4 font-medium text-slate-700">Product</th>
                 <th className="text-left py-3 px-4 font-medium text-slate-700">Amount</th>
-                <th className="text-left py-3 px-4 font-medium text-slate-700">Fees</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-700">Fee</th>
                 <th className="text-left py-3 px-4 font-medium text-slate-700">Net</th>
                 <th className="text-left py-3 px-4 font-medium text-slate-700">Status</th>
                 <th className="text-left py-3 px-4 font-medium text-slate-700">Actions</th>
@@ -206,7 +211,7 @@ export default function PaymentsTable() {
                   </td>
                   <td className="py-4 px-4 text-slate-800">{payment.productName || 'N/A'}</td>
                   <td className="py-4 px-4 font-medium text-slate-800">{formatCurrency(payment.amount)}</td>
-                  <td className="py-4 px-4 text-slate-600">{formatCurrency(payment.fees)}</td>
+                  <td className="py-4 px-4 text-slate-600">{formatCurrency(payment.platformFee ?? payment.fees ?? 0)}</td>
                   <td className="py-4 px-4 font-medium text-green-600">{formatCurrency(payment.netAmount)}</td>
                   <td className="py-4 px-4">
                     <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -321,8 +326,8 @@ export default function PaymentsTable() {
                   <span className="font-medium">{formatCurrency(selectedPayment.amount)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <span className="text-slate-600">Fees:</span>
-                  <span>{formatCurrency(selectedPayment.fees)}</span>
+                  <span className="text-slate-600">Fee:</span>
+                  <span>{formatCurrency(selectedPayment.platformFee ?? selectedPayment.fees ?? 0)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <span className="text-slate-600">Net Amount:</span>
@@ -336,7 +341,7 @@ export default function PaymentsTable() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <span className="text-slate-600">Transaction ID:</span>
-                  <span className="font-mono text-xs">{selectedPayment.stripePaymentId}</span>
+                  <span className="font-mono text-xs">{selectedPayment.transakOrderId || selectedPayment.id}</span>
                 </div>
               </div>
             </div>

@@ -325,7 +325,7 @@ export default function Support() {
                   </div>
                   <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                     <div>
-                      <div className="font-medium">Stripe fee (3.9% + $0.30)</div>
+                      <div className="font-medium">Platform fee (1.5%)</div>
                       <div className="text-sm text-slate-600">International card processing</div>
                     </div>
                     <div className="font-bold text-red-600">–$19.80</div>

@@ -219,7 +219,7 @@ export default function KycUpload({ vendor }: KycUploadProps) {
             </Badge>
           </div>
           <div className="text-xs text-slate-500 mt-2">
-            Documents are securely stored using Storj encryption
+            Documents are securely stored in Supabase storage
           </div>
         </div>
       </CardContent>

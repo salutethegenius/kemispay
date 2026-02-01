@@ -35,7 +35,7 @@ const onboardingSteps = [
 
 const feeStructure = [
   { stage: "Customer pays", amount: "$500.00", notes: "USD card payment", type: "positive" },
-  { stage: "Stripe fee (3.9% + $0.30)", amount: "–$19.80", notes: "International card processing", type: "negative" },
+  { stage: "Platform fee (1.5%)", amount: "–$15.00", notes: "Per transaction", type: "negative" },
   { stage: "FX/Platform fee (3%)", amount: "–$15.00", notes: "Currency conversion + platform", type: "negative" },
   { stage: "Wire transfer fee", amount: "–$25.00", notes: "One flat fee per payout (US → Bahamas)", type: "negative" },
   { stage: "Net to vendor (BSD)", amount: "$440.20", notes: "Deposited directly to your Bahamian bank", type: "final" }

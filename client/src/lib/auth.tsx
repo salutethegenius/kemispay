@@ -10,7 +10,7 @@ export interface Vendor {
   totalEarned: string;
   lastPayoutDate?: string;
   bankAccount?: string;
-  stripeCustomerId?: string;
+  stripeCustomerId?: string | null; // deprecated, kept for API compatibility
 }
 
 interface AuthContextType {

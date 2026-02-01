@@ -39,9 +39,9 @@ export default function BalanceOverview({ vendor }: BalanceOverviewProps) {
             <span className="text-2xl lg:text-3xl font-bold text-slate-800" data-testid="text-current-balance">
               {formatCurrency(vendor?.balance || 0)}
             </span>
-            <span className="text-slate-500 text-sm ml-1">BSD</span>
+            <span className="text-slate-500 text-sm ml-1">USDC</span>
           </div>
-          <p className="text-sm text-slate-600">Current Balance</p>
+          <p className="text-sm text-slate-600">Available Balance</p>
         </CardContent>
       </Card>
       
@@ -60,6 +60,7 @@ export default function BalanceOverview({ vendor }: BalanceOverviewProps) {
             <span className="text-2xl lg:text-3xl font-bold text-slate-800" data-testid="text-total-earned">
               {formatCurrency(vendor?.totalEarned || 0)}
             </span>
+            <span className="text-slate-500 text-sm ml-1">USDC</span>
           </div>
           <p className="text-sm text-slate-600">Total Earned</p>
         </CardContent>

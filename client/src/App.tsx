@@ -6,10 +6,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Support from "./pages/support";
 import Admin from "./pages/admin";
 import PaymentSuccess from "./pages/payment-success";
+import OrderConfirmation from "./pages/order-confirmation";
+import PayPage from "./pages/pay";
 import NotFound from "./pages/not-found";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
+import Landing from "@/pages/landing";
 import Waitlist from "@/pages/waitlist";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
@@ -18,7 +21,7 @@ import { AuthProvider } from "@/lib/auth";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Waitlist} />
+      <Route path="/" component={Landing} />
       <Route path="/waitlist" component={Waitlist} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
@@ -27,7 +30,9 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={Admin} />
       <Route path="/support" component={Support} />
+      <Route path="/pay/:linkId" component={PayPage} />
       <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/order-confirmation" component={OrderConfirmation} />
       <Route component={NotFound} />
     </Switch>
   );

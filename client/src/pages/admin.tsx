@@ -20,22 +20,22 @@ export default function Admin() {
   const [ticketResponse, setTicketResponse] = useState("");
 
   // KYC Data
-  const { data: pendingKyc = [], isLoading: kycLoading } = useQuery({
+  const { data: pendingKyc = [], isLoading: kycLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/kyc-pending"],
   });
 
   // Users Data
-  const { data: users = [], isLoading: usersLoading } = useQuery({
+  const { data: users = [], isLoading: usersLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/users"],
   });
 
   // Withdrawals Data
-  const { data: withdrawals, isLoading: withdrawalsLoading } = useQuery({
+  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/withdrawals"],
   });
 
   // Support Tickets Data
-  const { data: supportTickets, isLoading: supportLoading } = useQuery({
+  const { data: supportTickets = [], isLoading: supportLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/support/tickets"],
   });
 
@@ -229,8 +229,8 @@ export default function Admin() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <div className="font-medium text-slate-800">{doc.fileName}</div>
-                            <div className="text-sm text-slate-600">{doc.vendor?.name}</div>
-                            <div className="text-xs text-slate-500">{doc.vendor?.email}</div>
+                            <div className="text-sm text-slate-600">{doc.user?.name ?? doc.vendor?.name}</div>
+                            <div className="text-xs text-slate-500">{doc.user?.email ?? doc.vendor?.email}</div>
                           </div>
                           <Badge variant="outline">
                             {doc.documentType.replace('_', ' ')}
@@ -332,8 +332,8 @@ export default function Admin() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <div className="font-medium text-slate-800">${withdrawal.amount}</div>
-                            <div className="text-sm text-slate-600">{withdrawal.vendor?.name}</div>
-                            <div className="text-xs text-slate-500">{withdrawal.vendor?.email}</div>
+                            <div className="text-sm text-slate-600">{withdrawal.user?.name ?? withdrawal.vendor?.name}</div>
+                            <div className="text-xs text-slate-500">{withdrawal.user?.email ?? withdrawal.vendor?.email}</div>
                           </div>
                           <Badge className="bg-orange-100 text-orange-800">
                             {withdrawal.status}
@@ -506,7 +506,7 @@ export default function Admin() {
                             <div className="font-medium text-slate-800">Ticket #{ticket.id} - {ticket.subject}</div>
                             <div className="text-sm text-slate-600">From: {ticket.user?.name} ({ticket.user?.email})</div>
                           </div>
-                          <Badge variant={ticket.status === 'open' ? 'destructive' : ticket.status === 'in_progress' ? 'warning' : 'success'}>
+                          <Badge variant={ticket.status === 'open' ? 'destructive' : ticket.status === 'in_progress' ? 'secondary' : 'outline'}>
                             {ticket.status.toUpperCase()}
                           </Badge>
                         </div>
