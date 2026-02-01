@@ -23,7 +23,7 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
-      <div className="px-4 py-3">
+      <div className="px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
@@ -81,44 +81,44 @@ export default function Header() {
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 bg-white mt-3">
-            <nav className="px-4 py-3 space-y-3">
-              <button onClick={() => scrollToSection('dashboard')} className="flex items-center w-full text-left py-2 text-primary font-medium">
+            <nav className="px-4 py-3 space-y-1">
+              <button onClick={() => scrollToSection('dashboard')} className="flex items-center w-full text-left py-3 px-3 rounded-lg text-primary font-medium hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                 </svg>
                 Dashboard
               </button>
-              <button onClick={() => scrollToSection('payments')} className="flex items-center w-full text-left py-2 text-slate-600">
+              <button onClick={() => scrollToSection('payments')} className="flex items-center w-full text-left py-3 px-3 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
                 </svg>
                 Payments
               </button>
-              <button onClick={() => scrollToSection('withdraw')} className="flex items-center w-full text-left py-2 text-slate-600">
+              <button onClick={() => scrollToSection('withdraw')} className="flex items-center w-full text-left py-3 px-3 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M11 8c0-.55-.45-1-1-1s-1 .45-1 1 .45 1 1 1 1-.45 1-1zM15 8c0-.55-.45-1-1-1s-1 .45-1 1 .45 1 1 1 1-.45 1-1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
                 Withdraw
               </button>
-              <button onClick={() => scrollToSection('kyc')} className="flex items-center w-full text-left py-2 text-slate-600">
+              <button onClick={() => scrollToSection('kyc')} className="flex items-center w-full text-left py-3 px-3 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
                 KYC
               </button>
-              <button onClick={() => { setLocation("/support"); setIsMobileMenuOpen(false); }} className="flex items-center w-full text-left py-2 text-slate-600">
+              <button onClick={() => { setLocation("/support"); setIsMobileMenuOpen(false); }} className="flex items-center w-full text-left py-3 px-3 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
                 </svg>
                 Support
               </button>
-              <button onClick={() => { setLocation("/onboarding"); setIsMobileMenuOpen(false); }} className="flex items-center w-full text-left py-2 text-slate-600">
+              <button onClick={() => { setLocation("/onboarding"); setIsMobileMenuOpen(false); }} className="flex items-center w-full text-left py-3 px-3 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
                 FAQ & How It Works
               </button>
-              <a href="/admin" className="flex items-center w-full text-left py-2 text-slate-600">
+              <a href="/admin" className="flex items-center w-full text-left py-3 px-3 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 touch-manipulation min-h-[44px]">
                 <svg className="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>

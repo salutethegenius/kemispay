@@ -18,7 +18,7 @@ export default function PaymentsTable() {
   const { data: payments = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/payments"],
     refetchOnWindowFocus: true,
-    staleTime: 30 * 1000, // refetch when stale so new Transak payments appear
+    staleTime: 30 * 1000, // refetch when stale so new card payments appear
   });
 
   const formatCurrency = (amount: string | number) => {
@@ -44,7 +44,7 @@ export default function PaymentsTable() {
     });
   };
 
-  // Filter payments based on search term and status (Transak payments often have null payerName/payerEmail)
+  // Filter payments based on search term and status (card payments often have null payerName/payerEmail)
   const filteredPayments = payments.filter((payment: any) => {
     const term = searchTerm.trim().toLowerCase();
     const matchesSearch =

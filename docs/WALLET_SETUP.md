@@ -1,6 +1,6 @@
 # KemisPay Wallet Setup
 
-Customer payments (via Transak) send USDC to your **custody wallet**. This guide explains how to set it up.
+Customer card payments send USDC to your **custody wallet**. This guide explains how to set it up.
 
 ## Quick Start (Testing)
 
@@ -18,9 +18,9 @@ Customer payments (via Transak) send USDC to your **custody wallet**. This guide
 
 ## How It Works
 
-- **Customer** pays with card (Visa, etc.) via Transak
-- **Transak** converts fiat → USDC and sends it to your custody wallet
-- **KemisPay** receives a webhook, credits the vendor's ledger balance
+- **Customer** pays with card (Visa, etc.) on KemisPay
+- **KemisPay** converts fiat → USDC and sends it to your custody wallet
+- **KemisPay** receives the payment, credits the vendor's ledger balance
 - **Vendor** withdraws from their ledger (separate flow)
 
 The customer never sees or enters a wallet address—USDC is sent directly to your custody address.

@@ -9,13 +9,13 @@ export default function DebitCardDemo() {
   };
 
   return (
-    <section id="card" className="scroll-mt-20">
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16">
+    <section id="card" className="scroll-mt-16 sm:scroll-mt-20">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 sm:gap-12 lg:gap-16">
         {/* Demo card visual - CSS-only */}
         <div
-          className="w-full max-w-[320px] sm:max-w-[380px] aspect-[1.586/1] rounded-2xl shadow-xl flex-shrink-0 bg-gradient-to-br from-primary via-primary to-slate-800 border border-primary/30"
+          className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[380px] aspect-[1.586/1] rounded-xl sm:rounded-2xl shadow-xl flex-shrink-0 bg-gradient-to-br from-primary via-primary to-slate-800 border border-primary/30"
         >
-          <div className="h-full p-6 sm:p-8 flex flex-col justify-between text-white">
+          <div className="h-full p-4 sm:p-6 md:p-8 flex flex-col justify-between text-white">
             {/* Top row: chip + logo */}
             <div className="flex items-start justify-between">
               <div className="w-12 h-9 rounded-md bg-amber-400/90" aria-hidden />
@@ -26,7 +26,7 @@ export default function DebitCardDemo() {
               </div>
             </div>
             {/* Card number */}
-            <div className="tracking-[0.25em] text-lg sm:text-xl font-mono font-medium">
+            <div className="tracking-[0.2em] sm:tracking-[0.25em] text-base sm:text-lg md:text-xl font-mono font-medium">
               •••• •••• •••• 4242
             </div>
             {/* Bottom row */}
@@ -48,11 +48,11 @@ export default function DebitCardDemo() {
         </div>
 
         {/* Copy + CTA */}
-        <div className="flex-1 max-w-xl text-center lg:text-left">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">
+        <div className="flex-1 w-full max-w-xl text-center lg:text-left px-0 sm:px-2">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-3 sm:mb-4">
             Order your KemisPay Debit Card today!
           </h2>
-          <ul className="space-y-3 text-slate-600 mb-6">
+          <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-slate-600 mb-4 sm:mb-6">
             <li className="flex items-center gap-2 justify-center lg:justify-start">
               <span className="text-primary font-semibold">Instant payout</span>
               — funds to your card when you choose.
@@ -62,11 +62,11 @@ export default function DebitCardDemo() {
               — shop and withdraw globally.
             </li>
           </ul>
-          <p className="text-slate-600 mb-6">
+          <p className="text-slate-600 text-sm sm:text-base mb-4 sm:mb-6">
             Prefer your local bank? We support that too—{" "}
             <strong className="text-slate-800">local bank payouts typically arrive in 1–3 business days</strong>.
           </p>
-          <Button size="lg" onClick={handleOrderCard} className="w-full sm:w-auto">
+          <Button size="lg" onClick={handleOrderCard} className="w-full sm:w-auto min-h-[44px] touch-manipulation">
             Order your card
           </Button>
         </div>

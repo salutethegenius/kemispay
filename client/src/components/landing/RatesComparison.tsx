@@ -1,62 +1,48 @@
 export default function RatesComparison({
   showHeading = true,
   showBottomCta = true,
+  onCtaClick,
 }: {
   showHeading?: boolean;
   showBottomCta?: boolean;
+  onCtaClick?: () => void;
 }) {
   const providers = [
     { name: "KemisPay", highlight: true },
     { name: "Kanoo" },
     { name: "SunCash" },
-    { name: "Fygaro" },
-    { name: "TicketFlare" },
-    { name: "PayPal" },
+    { name: "Cash N' Go" },
   ];
 
   const getCell = (provider: string, field: string) => {
     const map: Record<string, Record<string, string>> = {
       KemisPay: {
-        transaction: "3.9% + 3% FX",
+        transaction: "~2.5% (card) + 1.5% (platform)",
         wire: "Flat $25 per payout",
-        ecommerce: "✅ Full website integration",
-        payout: "As soon as you consolidate",
-        useCase: "Events, services, stores",
+        ecommerce: "Full website integration",
+        payout: "Instant (card) or 1–3 days (bank)",
+        useCase: "Events, services, e‑commerce",
       },
       Kanoo: {
-        transaction: "Unclear / varies",
-        wire: "Not transparent",
-        ecommerce: "❌ Limited / wallet only",
+        transaction: "~1.75% (wallet); 1.5%–2% (card/POS)",
+        wire: "~$14 transfer (tier-dependent)",
+        ecommerce: "Wallet / POS terminals",
         payout: "Same day in-wallet",
-        useCase: "Peer-to-peer transfers",
+        useCase: "P2P, merchants on Kanoo network",
       },
       SunCash: {
-        transaction: "Unclear / varies",
-        wire: "Not transparent",
-        ecommerce: "❌ Limited / wallet only",
-        payout: "Instant in wallet → slower to bank",
-        useCase: "Remittances, bills",
+        transaction: "3%–5% (send tiers); 2% + 0.50 BSD (card load)",
+        wire: "1 BSD (bank withdrawal)",
+        ecommerce: "Wallet; ~1% merchant card (varies)",
+        payout: "1 BSD to bank; free receive in-wallet",
+        useCase: "Remittances, bills, wallet transfers",
       },
-      Fygaro: {
-        transaction: "~2.5%–3% (via gateway)",
-        wire: "Varies by bank",
-        ecommerce: "✅ Yes (invoices, stores)",
-        payout: "2–5 business days",
-        useCase: "Merchants / small shops",
-      },
-      TicketFlare: {
-        transaction: "5% per ticket",
-        wire: "Not listed",
-        ecommerce: "⚠️ Tickets only",
-        payout: "2–5 days after event",
-        useCase: "Ticket sales only",
-      },
-      PayPal: {
-        transaction: "~3.49% + FX fee",
-        wire: "$5–$15 + FX",
-        ecommerce: "✅ Yes (global)",
-        payout: "2–7 business days",
-        useCase: "International freelancers",
+      "Cash N' Go": {
+        transaction: "4% (merchant card); $0.15 (P2P)",
+        wire: "$10 (bank transfer)",
+        ecommerce: "Merchant card 4%; wallet / P2P",
+        payout: "$10 bank; $3–$5 in-network",
+        useCase: "Wallet, P2P, bills, merchant payments",
       },
     };
     return map[provider]?.[field] ?? "—";
@@ -65,202 +51,163 @@ export default function RatesComparison({
   return (
     <div className="max-w-6xl mx-auto">
       {showHeading && (
-        <div className="text-center mb-8">
-          <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">
-            How KemisPay Stacks Up
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">
+            Transparent pricing
           </h2>
-          <p className="text-lg text-slate-600 mb-4">
-            Compare KemisPay to other local payment options in The Bahamas
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Compare KemisPay to other payment options in The Bahamas. We publish
+            our fees upfront—no hidden costs.
           </p>
-          <div className="inline-block bg-primary/10 rounded-lg px-4 py-2">
-            <p className="text-primary font-semibold">
-              ✨ Others hide fees. We show them. Others limit you. We integrate you.
-            </p>
-          </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
-        {/* Mobile View */}
-        <div className="lg:hidden">
-          <div className="p-4 space-y-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Mobile / small tablet: cards */}
+        <div className="md:hidden">
+          <div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
             {providers.map((provider) => (
               <div
                 key={provider.name}
-                className={`p-4 rounded-lg border-2 ${
-                  provider.highlight ? "border-primary bg-primary/5" : "border-slate-200"
+                className={`p-4 sm:p-5 rounded-lg sm:rounded-xl border ${
+                  provider.highlight
+                    ? "border-primary bg-primary/5"
+                    : "border-slate-200 bg-slate-50/50"
                 }`}
               >
                 <h3
-                  className={`font-bold text-lg mb-3 ${
+                  className={`font-semibold text-base mb-4 ${
                     provider.highlight ? "text-primary" : "text-slate-800"
                   }`}
                 >
                   {provider.name}
                   {provider.highlight && (
-                    <span className="ml-2 text-sm bg-primary text-white px-2 py-1 rounded-full">
-                      Best Choice
+                    <span className="ml-2 text-xs font-medium bg-primary text-white px-2.5 py-1 rounded-full">
+                      Recommended
                     </span>
                   )}
                 </h3>
-                <div className="space-y-3 text-sm">
+                <dl className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                   <div>
-                    <span className="font-medium text-slate-700">Transaction Fees:</span>
-                    <div className="text-slate-600">{getCell(provider.name, "transaction")}</div>
+                    <dt className="font-medium text-slate-700">Transaction fee</dt>
+                    <dd className="text-slate-600">{getCell(provider.name, "transaction")}</dd>
                   </div>
                   <div>
-                    <span className="font-medium text-slate-700">Wire Fees:</span>
-                    <div className="text-slate-600">{getCell(provider.name, "wire")}</div>
+                    <dt className="font-medium text-slate-700">Bank / wire fee</dt>
+                    <dd className="text-slate-600">{getCell(provider.name, "wire")}</dd>
                   </div>
                   <div>
-                    <span className="font-medium text-slate-700">E-Commerce:</span>
-                    <div className="text-slate-600">{getCell(provider.name, "ecommerce")}</div>
+                    <dt className="font-medium text-slate-700">E‑commerce</dt>
+                    <dd className="text-slate-600">{getCell(provider.name, "ecommerce")}</dd>
                   </div>
                   <div>
-                    <span className="font-medium text-slate-700">Payout Speed:</span>
-                    <div className="text-slate-600">{getCell(provider.name, "payout")}</div>
+                    <dt className="font-medium text-slate-700">Payout speed</dt>
+                    <dd className="text-slate-600">{getCell(provider.name, "payout")}</dd>
                   </div>
                   <div>
-                    <span className="font-medium text-slate-700">Target Use Case:</span>
-                    <div className="text-slate-600">{getCell(provider.name, "useCase")}</div>
+                    <dt className="font-medium text-slate-700">Best for</dt>
+                    <dd className="text-slate-600">{getCell(provider.name, "useCase")}</dd>
                   </div>
-                </div>
+                </dl>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Desktop View */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="text-left py-4 px-6 font-semibold text-slate-700">Feature</th>
-                <th className="text-center py-4 px-4 font-semibold text-primary bg-primary/10">
-                  KemisPay
-                  <div className="text-xs font-normal text-primary mt-1">Best Choice</div>
+        {/* Tablet / desktop: table with horizontal scroll on narrow */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left min-w-[640px]">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wider w-48">
+                  Feature
                 </th>
-                <th className="text-center py-4 px-4 font-semibold text-slate-700">Kanoo</th>
-                <th className="text-center py-4 px-4 font-semibold text-slate-700">SunCash</th>
-                <th className="text-center py-4 px-4 font-semibold text-slate-700">Fygaro</th>
-                <th className="text-center py-4 px-4 font-semibold text-slate-700">TicketFlare</th>
-                <th className="text-center py-4 px-4 font-semibold text-slate-700">PayPal</th>
+                <th className="py-4 px-5 font-semibold text-primary bg-primary/5 text-sm text-center min-w-[140px]">
+                  KemisPay
+                  <div className="text-xs font-normal text-primary mt-1 opacity-90">
+                    Recommended
+                  </div>
+                </th>
+                <th className="py-4 px-5 font-semibold text-slate-700 text-sm text-center min-w-[120px]">
+                  Kanoo
+                </th>
+                <th className="py-4 px-5 font-semibold text-slate-700 text-sm text-center min-w-[120px]">
+                  SunCash
+                </th>
+                <th className="py-4 px-5 font-semibold text-slate-700 text-sm text-center min-w-[120px]">
+                  Cash N' Go
+                </th>
               </tr>
             </thead>
-            <tbody>
-              <tr className="border-b border-slate-100">
-                <td className="py-4 px-6 font-medium text-slate-800">Transaction Fees</td>
-                <td className="py-4 px-4 text-center bg-primary/5">
-                  <div className="font-semibold text-primary">3.9% + 3% FX</div>
-                  <div className="text-xs text-slate-600 mt-1">Transparent pricing</div>
+            <tbody className="divide-y divide-slate-100">
+              <tr>
+                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
+                  Transaction fee
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Kanoo", "transaction")}
+                <td className="py-4 px-5 text-center bg-primary/5">
+                  <span className="font-semibold text-primary">~2.5% + 1.5%</span>
+                  <div className="text-xs text-slate-500 mt-0.5">Card + platform (example)</div>
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("SunCash", "transaction")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Fygaro", "transaction")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("TicketFlare", "transaction")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("PayPal", "transaction")}
-                </td>
-              </tr>
-              <tr className="border-b border-slate-100">
-                <td className="py-4 px-6 font-medium text-slate-800">Bank Transfer / Wire Fees</td>
-                <td className="py-4 px-4 text-center bg-primary/5">
-                  <div className="font-semibold text-primary">Flat $25 per payout</div>
-                  <div className="text-xs text-slate-600 mt-1">Batch monthly</div>
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Kanoo", "wire")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("SunCash", "wire")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Fygaro", "wire")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("TicketFlare", "wire")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("PayPal", "wire")}
-                </td>
-              </tr>
-              <tr className="border-b border-slate-100">
-                <td className="py-4 px-6 font-medium text-slate-800">E-Commerce Integration</td>
-                <td className="py-4 px-4 text-center bg-primary/5">
-                  <div className="font-semibold text-green-600">✅ Full website plugin</div>
-                  <div className="text-xs text-slate-600 mt-1">Pay with card via Transak</div>
-                </td>
-                <td className="py-4 px-4 text-center">
-                  <div className="font-semibold text-red-600">❌ Limited</div>
-                  <div className="text-xs text-slate-600 mt-1">Wallet only</div>
-                </td>
-                <td className="py-4 px-4 text-center">
-                  <div className="font-semibold text-red-600">❌ Limited</div>
-                  <div className="text-xs text-slate-600 mt-1">Wallet only</div>
-                </td>
-                <td className="py-4 px-4 text-center">
-                  <div className="font-semibold text-green-600">✅ Yes</div>
-                  <div className="text-xs text-slate-600 mt-1">Invoices, stores</div>
-                </td>
-                <td className="py-4 px-4 text-center">
-                  <div className="font-semibold text-orange-600">⚠️ Tickets only</div>
-                </td>
-                <td className="py-4 px-4 text-center">
-                  <div className="font-semibold text-green-600">✅ Yes</div>
-                  <div className="text-xs text-slate-600 mt-1">Global</div>
-                </td>
-              </tr>
-              <tr className="border-b border-slate-100">
-                <td className="py-4 px-6 font-medium text-slate-800">Payout Speed</td>
-                <td className="py-4 px-4 text-center bg-primary/5">
-                  <div className="font-semibold text-primary">As soon as you consolidate</div>
-                  <div className="text-xs text-slate-600 mt-1">Your choice</div>
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Kanoo", "payout")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("SunCash", "payout")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Fygaro", "payout")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("TicketFlare", "payout")}
-                </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("PayPal", "payout")}
-                </td>
+                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
+                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
+                    {getCell(p, "transaction")}
+                  </td>
+                ))}
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-800">Target Use Case</td>
-                <td className="py-4 px-4 text-center bg-primary/5">
-                  <div className="font-semibold text-primary">Events, services, stores</div>
-                  <div className="text-xs text-slate-600 mt-1">Full flexibility</div>
+                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
+                  Bank transfer / wire fee
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Kanoo", "useCase")}
+                <td className="py-4 px-5 text-center bg-primary/5">
+                  <span className="font-semibold text-primary">Flat $25 per payout</span>
+                  <div className="text-xs text-slate-500 mt-0.5">Batch to save</div>
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("SunCash", "useCase")}
+                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
+                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
+                    {getCell(p, "wire")}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
+                  E‑commerce integration
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("Fygaro", "useCase")}
+                <td className="py-4 px-5 text-center bg-primary/5">
+                  <span className="font-semibold text-primary">Full website</span>
+                  <div className="text-xs text-slate-500 mt-0.5">Pay with card</div>
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("TicketFlare", "useCase")}
+                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
+                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
+                    {getCell(p, "ecommerce")}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
+                  Payout speed
                 </td>
-                <td className="py-4 px-4 text-center text-slate-600">
-                  {getCell("PayPal", "useCase")}
+                <td className="py-4 px-5 text-center bg-primary/5">
+                  <span className="font-semibold text-primary">Your choice</span>
+                  <div className="text-xs text-slate-500 mt-0.5">Instant or 1–3 days</div>
                 </td>
+                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
+                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
+                    {getCell(p, "payout")}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
+                  Best for
+                </td>
+                <td className="py-4 px-5 text-center bg-primary/5">
+                  <span className="font-semibold text-primary">Events, services, stores</span>
+                </td>
+                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
+                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
+                    {getCell(p, "useCase")}
+                  </td>
+                ))}
               </tr>
             </tbody>
           </table>
@@ -268,11 +215,20 @@ export default function RatesComparison({
       </div>
 
       {showBottomCta && (
-        <div className="text-center mt-8 p-6 bg-primary/5 rounded-lg border border-primary/20">
-          <h3 className="font-bold text-slate-800 mb-2">Ready to switch to transparent pricing?</h3>
-          <p className="text-slate-600 text-sm">
-            Join Bahamian businesses already saving money with KemisPay's honest fee structure.
+        <div className="text-center mt-6 sm:mt-10 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 max-w-2xl mx-auto">
+          <h3 className="font-semibold text-slate-900 mb-1 text-base sm:text-lg">
+            Ready for transparent pricing?
+          </h3>
+          <p className="text-slate-600 text-xs sm:text-sm mb-3 sm:mb-4 px-1">
+            Join Bahamian businesses using KemisPay. No hidden fees—just clear rates.
           </p>
+          <button
+            type="button"
+            onClick={onCtaClick ?? (() => (window.location.href = "/login"))}
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 sm:px-6 sm:py-2.5 text-sm font-medium text-white hover:opacity-95 transition-opacity min-h-[44px] touch-manipulation"
+          >
+            Create a free account
+          </button>
         </div>
       )}
     </div>

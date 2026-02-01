@@ -21,7 +21,7 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, setLocation]);
 
-  // Refetch payments and vendor balance once when dashboard mounts (so new Transak payments appear)
+  // Refetch payments and vendor balance once when dashboard mounts (so new card payments appear)
   const hasRefetched = useRef(false);
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -43,10 +43,10 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-6 lg:px-8">
-        <section id="dashboard" className="mb-8">
-          <div className="mb-6">
-            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-2" data-testid="title-dashboard">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:px-8">
+        <section id="dashboard" className="mb-6 sm:mb-8">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 mb-1 sm:mb-2" data-testid="title-dashboard">
               Dashboard
             </h1>
             <p className="text-slate-600">Manage your payments and track your earnings</p>
@@ -55,7 +55,7 @@ export default function Dashboard() {
           <BalanceOverview vendor={vendor} />
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <div className="lg:col-span-2 space-y-6 lg:space-y-8">
             <PaymentLinkGenerator />
             <div id="payments">
@@ -74,14 +74,19 @@ export default function Dashboard() {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-slate-200 mt-12">
-        <div className="max-w-7xl mx-auto px-4 py-8 lg:px-8">
-          <div className="text-center text-sm text-slate-600">
-            <p>&copy; 2025 KemisPay. All rights reserved. |
-               <button onClick={() => setLocation("/onboarding")} className="text-primary hover:text-primary/80 ml-1">FAQ & How It Works</button> |
-               <a href="/#rates" className="text-primary hover:text-primary/80 ml-1">Compare rates</a> |
-               <button onClick={() => setLocation("/privacy")} className="text-primary hover:text-primary/80 ml-1">Privacy Policy</button> |
-               <button onClick={() => setLocation("/terms")} className="text-primary hover:text-primary/80 ml-1">Terms of Service</button>
+      <footer className="bg-white border-t border-slate-200 mt-8 sm:mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8 lg:px-8">
+          <div className="text-center text-xs sm:text-sm text-slate-600">
+            <p className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1">
+              <span>&copy; {new Date().getFullYear()} KemisPay. All rights reserved.</span>
+              <span className="hidden sm:inline">|</span>
+              <button onClick={() => setLocation("/onboarding")} className="text-primary hover:text-primary/80 px-1 py-1 min-h-[44px] min-w-[44px] touch-manipulation rounded">FAQ & How It Works</button>
+              <span className="hidden sm:inline">|</span>
+              <a href="/#rates" className="text-primary hover:text-primary/80 px-1 py-1 inline-block touch-manipulation rounded">Compare rates</a>
+              <span className="hidden sm:inline">|</span>
+              <button onClick={() => setLocation("/privacy")} className="text-primary hover:text-primary/80 px-1 py-1 min-h-[44px] min-w-[44px] touch-manipulation rounded">Privacy Policy</button>
+              <span className="hidden sm:inline">|</span>
+              <button onClick={() => setLocation("/terms")} className="text-primary hover:text-primary/80 px-1 py-1 min-h-[44px] min-w-[44px] touch-manipulation rounded">Terms of Service</button>
             </p>
           </div>
         </div>
