@@ -1,9 +1,18 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
+import helmet from "helmet";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+const CLIENT_URL = process.env.CLIENT_URL || "https://kemispay.com";
+
 const app = express();
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({
+  origin: process.env.NODE_ENV === "development" ? true : CLIENT_URL,
+  credentials: true,
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 

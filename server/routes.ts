@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
+import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { ledgerService } from "./services/ledger";
 import { supabaseStorageService } from "./services/supabase-storage";
@@ -19,6 +20,18 @@ declare global {
 }
 
 const CLIENT_URL = process.env.CLIENT_URL || "https://kemispay.com";
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+
+function authenticateAdmin(req: Request, res: Response, next: Function) {
+  if (!ADMIN_API_KEY) {
+    return res.status(503).json({ message: "Admin not configured" });
+  }
+  const key = req.headers["x-admin-api-key"] ?? req.headers.authorization?.replace("Bearer ", "");
+  if (key !== ADMIN_API_KEY) {
+    return res.status(401).json({ message: "Admin authentication required" });
+  }
+  next();
+}
 
 async function authenticateUser(req: Request, res: Response, next: Function) {
   const token = req.headers.authorization?.replace("Bearer ", "");
@@ -47,9 +60,33 @@ async function authenticateUser(req: Request, res: Response, next: Function) {
   }
 }
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { message: "Too many login attempts; try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const waitlistJoinLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Too many signups; try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  message: { message: "Too many webhook requests" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const { email } = z.object({ email: z.string().email() }).parse(req.body);
 
@@ -329,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Transak webhook (ORDER_COMPLETED -> credit ledger)
-  app.post("/api/transak/webhook", async (req, res) => {
+  app.post("/api/transak/webhook", webhookLimiter, async (req, res) => {
     try {
       await handleTransakWebhook(req.body);
       res.json({ received: true });
@@ -401,8 +438,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes
-  app.get("/api/admin/kyc-pending", async (req, res) => {
+  // Admin routes (require ADMIN_API_KEY in X-Admin-API-Key or Authorization: Bearer)
+  app.get("/api/admin/kyc-pending", authenticateAdmin, async (req, res) => {
     try {
       const documents = await storage.getAllPendingKycDocuments();
       res.json(documents);
@@ -411,7 +448,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/kyc/:id/review", async (req, res) => {
+  app.post("/api/admin/kyc/:id/review", authenticateAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { status, reviewNotes } = z
@@ -441,7 +478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/users", async (req, res) => {
+  app.get("/api/admin/users", authenticateAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -450,7 +487,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/users/:id/:action", async (req, res) => {
+  app.post("/api/admin/users/:id/:action", authenticateAdmin, async (req, res) => {
     try {
       const { id, action } = req.params;
 
@@ -475,7 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/withdrawals", async (req, res) => {
+  app.get("/api/admin/withdrawals", authenticateAdmin, async (req, res) => {
     try {
       const withdrawals = await storage.getAllWithdrawalRequests();
       res.json(withdrawals);
@@ -484,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/withdrawals/:id/process", async (req, res) => {
+  app.post("/api/admin/withdrawals/:id/process", authenticateAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { status, notes } = z
@@ -518,7 +555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/support/tickets", async (req, res) => {
+  app.get("/api/admin/support/tickets", authenticateAdmin, async (req, res) => {
     try {
       const tickets = await storage.getAllSupportTickets();
       res.json(tickets);
@@ -527,7 +564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/support/tickets/:id/respond", async (req, res) => {
+  app.post("/api/admin/support/tickets/:id/respond", authenticateAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { status, adminResponse } = z
@@ -545,7 +582,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Waitlist routes
-  app.post("/api/waitlist/join", async (req, res) => {
+  app.post("/api/waitlist/join", waitlistJoinLimiter, async (req, res) => {
     try {
       const { name, email, phoneNumber } = z
         .object({
@@ -585,7 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/waitlist/entries", async (req, res) => {
+  app.get("/api/waitlist/entries", authenticateAdmin, async (req, res) => {
     try {
       const entries = await storage.getAllWaitlistEntries();
       res.json(entries);

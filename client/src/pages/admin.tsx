@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+const ADMIN_KEY_STORAGE = "admin_api_key";
+
 export default function Admin() {
   const { toast } = useToast();
+  const [adminKeySet, setAdminKeySet] = useState(() =>
+    typeof sessionStorage !== "undefined" && !!sessionStorage.getItem(ADMIN_KEY_STORAGE)
+  );
+  const [adminKeyInput, setAdminKeyInput] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
@@ -19,24 +25,38 @@ export default function Admin() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [ticketResponse, setTicketResponse] = useState("");
 
+  const saveAdminKey = useCallback(() => {
+    const key = adminKeyInput.trim();
+    if (!key) return;
+    sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
+    setAdminKeySet(true);
+    setAdminKeyInput("");
+    queryClient.invalidateQueries();
+    toast({ title: "Admin key saved", description: "You can now use the dashboard." });
+  }, [adminKeyInput, toast]);
+
   // KYC Data
   const { data: pendingKyc = [], isLoading: kycLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/kyc-pending"],
+    enabled: adminKeySet,
   });
 
   // Users Data
   const { data: users = [], isLoading: usersLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/users"],
+    enabled: adminKeySet,
   });
 
   // Withdrawals Data
   const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/withdrawals"],
+    enabled: adminKeySet,
   });
 
   // Support Tickets Data
   const { data: supportTickets = [], isLoading: supportLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/support/tickets"],
+    enabled: adminKeySet,
   });
 
   // KYC Review Mutation
@@ -166,6 +186,34 @@ export default function Admin() {
     });
   };
 
+
+  if (!adminKeySet) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Admin access</CardTitle>
+            <p className="text-sm text-slate-600 mt-1">
+              Enter your admin API key to continue. Set ADMIN_API_KEY in your server environment.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input
+              type="password"
+              placeholder="Admin API key"
+              value={adminKeyInput}
+              onChange={(e) => setAdminKeyInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && saveAdminKey()}
+              autoFocus
+            />
+            <Button onClick={saveAdminKey} disabled={!adminKeyInput.trim()} className="w-full">
+              Continue
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (kycLoading || usersLoading || withdrawalsLoading || supportLoading) {
     return (

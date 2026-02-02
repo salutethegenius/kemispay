@@ -7,16 +7,22 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+function isAdminUrl(url: string): boolean {
+  return url.startsWith("/api/admin") || url === "/api/waitlist/entries";
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
   const token = localStorage.getItem('token') || (window as any).__kemispay_token;
+  const adminKey = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("admin_api_key") : null;
 
   const headers: Record<string, string> = {
     ...(data ? { "Content-Type": "application/json" } : {}),
     ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    ...(isAdminUrl(url) && adminKey ? { "X-Admin-API-Key": adminKey } : {}),
   };
 
   const res = await fetch(url, {
@@ -36,13 +42,16 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    const url = queryKey.join("/") as string;
     const token = localStorage.getItem('token') || (window as any).__kemispay_token;
+    const adminKey = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("admin_api_key") : null;
 
     const headers: Record<string, string> = {
       ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      ...(isAdminUrl(url) && adminKey ? { "X-Admin-API-Key": adminKey } : {}),
     };
 
-    const res = await fetch(queryKey.join("/") as string, {
+    const res = await fetch(url, {
       credentials: "include",
       headers,
     });
