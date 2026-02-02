@@ -1,18 +1,16 @@
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 
 export default function Privacy() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center">
+    <div className="min-h-screen bg-white">
+      <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center">
           <button
             onClick={() => setLocation("/")}
-            className="flex items-center space-x-2 text-slate-400 hover:text-white transition"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition"
             data-testid="button-back"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -21,75 +19,112 @@ export default function Privacy() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <h1 className="text-4xl font-bold text-white mb-8">Privacy Policy</h1>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Privacy Policy</h1>
+        <p className="text-slate-600 mb-10">KemisPay LLC · Effective Date: 1 February 2026</p>
 
-        <div className="prose prose-invert max-w-none space-y-8">
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Introduction</h2>
-            <p className="text-slate-300 leading-relaxed">
-              KemisPay LLC ("we", "us", "our", or "Company"), a subsidiary of Kemis Group of Companies Inc., is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
-            </p>
-          </section>
+        <div className="prose prose-slate max-w-none space-y-10 text-slate-700">
+          <p className="lead text-slate-600">
+            KemisPay LLC, a subsidiary of Kemis Group of Companies Inc., values your privacy. This Privacy Policy explains how we collect, use, store, and protect your information when you use the KemisPay platform, website, and services.
+          </p>
 
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Information We Collect</h2>
-            <p className="text-slate-300 leading-relaxed mb-4">
-              We may collect information about you in a variety of ways. The information we may collect on the site includes:
-            </p>
-            <ul className="list-disc list-inside text-slate-300 space-y-2">
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">1. Information We Collect</h2>
+            <p className="mb-4">We collect the following types of information:</p>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">a. Personal Information</h3>
+            <ul className="list-disc pl-6 space-y-1 mb-4">
               <li>Name</li>
-              <li>Email Address</li>
-              <li>Phone Number</li>
-              <li>Payment Information</li>
-              <li>Business Information</li>
+              <li>Email address</li>
+              <li>Phone number</li>
+              <li>Date of birth</li>
+              <li>Government issued identification when required for identity verification</li>
+              <li>Address information when required for withdrawals or card issuance</li>
+            </ul>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">b. Financial and Account Information</h3>
+            <ul className="list-disc pl-6 space-y-1 mb-4">
+              <li>Transaction history within KemisPay</li>
+              <li>Wallet balances and withdrawal requests</li>
+              <li>Linked payment methods used for funding or withdrawals</li>
+            </ul>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">c. Technical Information</h3>
+            <ul className="list-disc pl-6 space-y-1">
+              <li>IP address</li>
+              <li>Device and browser type</li>
+              <li>Log data related to platform usage</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Use of Your Information</h2>
-            <p className="text-slate-300 leading-relaxed mb-4">
-              Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the site to:
-            </p>
-            <ul className="list-disc list-inside text-slate-300 space-y-2">
-              <li>Process your transactions and send related information</li>
-              <li>Email you regarding your account or order</li>
-              <li>Improve our website and services</li>
-              <li>Monitor and analyze usage and trends</li>
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">2. How We Use Your Information</h2>
+            <p className="mb-4">We use your information to:</p>
+            <ul className="list-disc pl-6 space-y-1 mb-4">
+              <li>Create and manage your KemisPay account</li>
+              <li>Process transactions and maintain accurate account balances</li>
+              <li>Comply with legal and regulatory requirements</li>
+              <li>Prevent fraud and unauthorized activity</li>
+              <li>Communicate important service related updates</li>
+              <li>Improve platform performance and user experience</li>
             </ul>
+            <p className="font-medium">We do not sell your personal information.</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Disclosure of Your Information</h2>
-            <p className="text-slate-300 leading-relaxed">
-              We may share your information with third parties who perform services for us, including payment processors, analytics providers, and customer service platforms. We will not sell your personal information to third parties.
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">3. Custody and Storage of Funds</h2>
+            <p>
+              KemisPay provides access to stored value services. Funds held in KemisPay accounts are represented as digital balances and remain the property of the user at all times. KemisPay does not use customer funds for its own operating expenses.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Security of Your Information</h2>
-            <p className="text-slate-300 leading-relaxed">
-              We use administrative, technical, and physical security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee its absolute security.
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">4. KYC and Identity Verification</h2>
+            <p>
+              When required, we collect identity documents to comply with legal, compliance, and risk management requirements. These documents are securely stored using third party encrypted storage providers and are only accessed when necessary.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Contact Us</h2>
-            <p className="text-slate-300 leading-relaxed">
-              If you have questions or comments about this Privacy Policy, please contact us at:
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">5. Data Storage and Security</h2>
+            <p>
+              We use reasonable administrative, technical, and physical safeguards to protect your data. While no system is completely secure, we implement industry standard practices to minimize risk.
             </p>
-            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mt-4">
-              <p className="text-white font-semibold mb-2">KemisPay LLC</p>
-              <p className="text-slate-300">Bahamas</p>
-              <p className="text-slate-300">A subsidiary of Kemis Group of Companies Inc.</p>
-            </div>
           </section>
 
           <section>
-            <p className="text-slate-400 text-sm">
-              Last updated: December 2024
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">6. Sharing of Information</h2>
+            <p className="mb-4">We may share information with:</p>
+            <ul className="list-disc pl-6 space-y-1 mb-4">
+              <li>Service providers that support our operations such as payment processors and compliance providers</li>
+              <li>Legal or regulatory authorities if required by law</li>
+              <li>Third parties in connection with fraud prevention or platform security</li>
+            </ul>
+            <p className="font-medium">We do not share information for marketing purposes without consent.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">7. Data Retention</h2>
+            <p>
+              We retain personal and financial information only as long as necessary to provide services and comply with legal obligations.
             </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">8. Your Rights</h2>
+            <p>
+              You may request access, correction, or deletion of your personal data where legally permitted by contacting support@kemispay.com.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">9. Changes to This Policy</h2>
+            <p>
+              We may update this Privacy Policy from time to time. Updates will be posted on our website.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">10. Contact</h2>
+            <p className="mb-2">For privacy related questions, contact:</p>
+            <p><a href="mailto:support@kemispay.com" className="text-primary font-medium hover:underline">support@kemispay.com</a></p>
           </section>
         </div>
       </div>

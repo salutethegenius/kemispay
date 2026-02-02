@@ -6,7 +6,7 @@ const TRANSAK_ACCESS_TOKEN = process.env.TRANSAK_ACCESS_TOKEN;
 const TRANSAK_API_KEY = process.env.TRANSAK_API_KEY;
 const TRANSAK_BASE_URL = process.env.TRANSAK_BASE_URL || "https://global-stg.transak.com";
 const KEMISPAY_CUSTODY_WALLET_ADDRESS = process.env.KEMISPAY_CUSTODY_WALLET_ADDRESS;
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5000";
+const CLIENT_URL = process.env.CLIENT_URL || "https://kemispay.com";
 
 export interface TransakWebhookPayload {
   data?: string; // JWT encrypted

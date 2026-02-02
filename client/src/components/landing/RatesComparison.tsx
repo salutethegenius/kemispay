@@ -18,6 +18,7 @@ export default function RatesComparison({
     const map: Record<string, Record<string, string>> = {
       KemisPay: {
         transaction: "~2.5% (card) + 1.5% (platform)",
+        debitCardFee: "$25 (1-time)",
         wire: "Flat $25 per payout",
         ecommerce: "Full website integration",
         payout: "Instant (card) or 1–3 days (bank)",
@@ -25,6 +26,7 @@ export default function RatesComparison({
       },
       Kanoo: {
         transaction: "~1.75% (wallet); 1.5%–2% (card/POS)",
+        debitCardFee: "—",
         wire: "~$14 transfer (tier-dependent)",
         ecommerce: "Wallet / POS terminals",
         payout: "Same day in-wallet",
@@ -32,6 +34,7 @@ export default function RatesComparison({
       },
       SunCash: {
         transaction: "3%–5% (send tiers); 2% + 0.50 BSD (card load)",
+        debitCardFee: "—",
         wire: "1 BSD (bank withdrawal)",
         ecommerce: "Wallet; ~1% merchant card (varies)",
         payout: "1 BSD to bank; free receive in-wallet",
@@ -39,6 +42,7 @@ export default function RatesComparison({
       },
       "Cash N' Go": {
         transaction: "4% (merchant card); $0.15 (P2P)",
+        debitCardFee: "—",
         wire: "$10 (bank transfer)",
         ecommerce: "Merchant card 4%; wallet / P2P",
         payout: "$10 bank; $3–$5 in-network",
@@ -91,6 +95,10 @@ export default function RatesComparison({
                   <div>
                     <dt className="font-medium text-slate-700">Transaction fee</dt>
                     <dd className="text-slate-600">{getCell(provider.name, "transaction")}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-slate-700">Debit card 1-time fee</dt>
+                    <dd className="text-slate-600">{getCell(provider.name, "debitCardFee")}</dd>
                   </div>
                   <div>
                     <dt className="font-medium text-slate-700">Bank / wire fee</dt>
@@ -151,6 +159,19 @@ export default function RatesComparison({
                 {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
                   <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
                     {getCell(p, "transaction")}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
+                  KemisPay Debit Card 1-time fee
+                </td>
+                <td className="py-4 px-5 text-center bg-primary/5">
+                  <span className="font-semibold text-primary">$25</span>
+                </td>
+                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
+                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
+                    {getCell(p, "debitCardFee")}
                   </td>
                 ))}
               </tr>

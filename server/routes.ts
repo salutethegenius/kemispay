@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5000";
+const CLIENT_URL = process.env.CLIENT_URL || "https://kemispay.com";
 
 async function authenticateUser(req: Request, res: Response, next: Function) {
   const token = req.headers.authorization?.replace("Bearer ", "");

@@ -64,13 +64,6 @@ export default function KemisPayPricing() {
         <div className="flex gap-3 min-w-0">
           <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
           <p className="text-xs sm:text-sm text-slate-700 min-w-0">
-            <strong className="text-slate-900">KemisPay card fee can be lower</strong>{" "}
-            if the customer pays via bank transfer or other low-cost methods.
-          </p>
-        </div>
-        <div className="flex gap-3 min-w-0">
-          <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-xs sm:text-sm text-slate-700 min-w-0">
             <strong className="text-slate-900">Your platform fee is flexible</strong>{" "}
             — you set it. 1.5% is a strong baseline that keeps you competitive.
           </p>
