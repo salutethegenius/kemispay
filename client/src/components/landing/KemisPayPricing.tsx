@@ -1,5 +1,3 @@
-import { Info } from "lucide-react";
-
 export default function KemisPayPricing() {
   return (
     <div className="max-w-3xl mx-auto mb-10 sm:mb-16 px-0 sm:px-2">
@@ -57,32 +55,6 @@ export default function KemisPayPricing() {
           the user&apos;s USDC balance inside KemisPay would be about $960 in
           this example.
         </p>
-      </div>
-
-      {/* Flexibility bullets */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5 space-y-3 sm:space-y-4">
-        <div className="flex gap-3 min-w-0">
-          <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-xs sm:text-sm text-slate-700 min-w-0">
-            <strong className="text-slate-900">Your platform fee is flexible</strong>{" "}
-            — you set it. 1.5% is a strong baseline that keeps you competitive.
-          </p>
-        </div>
-        <div className="flex gap-3 min-w-0">
-          <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-xs sm:text-sm text-slate-700 min-w-0">
-            <strong className="text-slate-900">You choose how to pass costs</strong>{" "}
-            — pass the card fee fully to the user, partially absorb it, or
-            wrap it into the posted price.
-          </p>
-        </div>
-        <div className="flex gap-3 min-w-0">
-          <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-xs sm:text-sm text-slate-700 min-w-0">
-            <strong className="text-slate-900">These fees apply at payment</strong>{" "}
-            — before any withdrawal or payout fees that might apply later.
-          </p>
-        </div>
       </div>
     </div>
   );
