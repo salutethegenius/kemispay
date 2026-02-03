@@ -9,25 +9,25 @@ import { CheckCircle2, DollarSign, CreditCard, Banknote, ArrowRight } from "luci
 const onboardingSteps = [
   {
     title: "Create Your Account",
-    description: "Sign up with your business details and get verified instantly",
+    description: "Sign up with your business details. Built for small and medium-sized Bahamian business owners",
     icon: CheckCircle2,
     completed: true
   },
   {
     title: "Generate Payment Links",
-    description: "Create custom payment links for your products or services",
+    description: "Create custom payment links for your products or services. Get paid instantly to your digital balance",
     icon: CreditCard,
     completed: false
   },
   {
     title: "Share & Get Paid",
-    description: "Share links with customers and receive payments automatically",
+    description: "Share links with customers and receive payments in real time. No banking delays",
     icon: DollarSign,
     completed: false
   },
   {
-    title: "Withdraw Earnings",
-    description: "Transfer your earnings to your local bank account in BSD",
+    title: "Spend or Withdraw",
+    description: "Use the KemisPay Debit Card for instant access, or withdraw to your Bahamian bank",
     icon: Banknote,
     completed: false
   }
@@ -113,7 +113,7 @@ export default function Onboarding() {
             Welcome to KemisPay!
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-6">
-            Are you missing out on $500+ in credit card payments each month? Accept cards online instantly and get your money in your Bahamian bank — no merchant account required.
+            KemisPay gives Bahamian small and medium-sized business owners fast, reliable access to funds. Accept card payments instantly to your digital balance, then spend with the KemisPay Debit Card or withdraw to your bank. No merchant account required.
           </p>
           <div className="bg-primary/10 rounded-lg p-4 max-w-2xl mx-auto">
             <p className="text-sm text-primary font-medium">
@@ -192,7 +192,7 @@ export default function Onboarding() {
                   <div>• On $500 → $25 fee (5%)</div>
                   <div>• On $2,000+ → $25 fee (1.25%)</div>
                 </div>
-                <p className="pt-2"><strong>Perfect for:</strong> Selling event tickets 🎟️ • Offering services 💼 • Running online stores 🛒</p>
+                <p className="pt-2"><strong>Perfect for:</strong> Local business owners who need timely liquidity: events, services, online stores, and day-to-day operations.</p>
               </div>
             </div>
           </CardContent>
@@ -211,12 +211,12 @@ export default function Onboarding() {
             
             <div>
               <h3 className="font-semibold text-slate-800 mb-2">Can I integrate with my website?</h3>
-              <p className="text-slate-600">Absolutely! Unlike local competitors, KemisPay works with Shopify, WordPress, Wix, Squarespace, and custom sites. Your customers checkout directly on your site — no clunky redirects or standalone forms.</p>
+              <p className="text-slate-600">Absolutely! Unlike local competitors, KemisPay works with Shopify, WordPress, Wix, Squarespace, and custom sites. Your customers checkout directly on your site. No clunky redirects or standalone forms.</p>
             </div>
             
             <div>
               <h3 className="font-semibold text-slate-800 mb-2">How does the wire transfer fee work?</h3>
-              <p className="text-slate-600">It's one flat $25 fee per payout to your Bahamian bank — no matter how much you consolidate. Smart vendors batch their payouts monthly to minimize this cost.</p>
+              <p className="text-slate-600">It's one flat $25 fee per payout to your Bahamian bank, no matter how much you consolidate. Smart vendors batch their payouts monthly to minimize this cost.</p>
             </div>
             
             <div>

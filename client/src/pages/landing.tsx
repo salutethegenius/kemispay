@@ -36,7 +36,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Nav — clean, minimal; mobile hamburger */}
+      {/* Nav: clean, minimal; mobile hamburger */}
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -112,15 +112,14 @@ export default function Landing() {
         )}
       </nav>
 
-      {/* Hero — Paystack-style: one headline, one subline, two CTAs */}
+      {/* Hero: one headline, one subline, two CTAs */}
       <section className="relative pt-12 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-bold text-slate-900 tracking-tight leading-[1.15] mb-4 sm:mb-6 px-0 sm:px-2">
-            Modern payments for the Bahamas
+            Instant payments for Bahamian Businesses
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl text-slate-600 font-normal max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed px-1">
-            KemisPay helps Bahamian businesses get paid by anyone, anywhere—with
-            card payments, transparent fees, and payouts to your bank or debit card.
+            Built for Bahamian business owners who need fast access to cash. Get paid, then withdraw to your local debit card or bank.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
@@ -140,7 +139,7 @@ export default function Landing() {
             </Button>
           </div>
           <p className="mt-8 text-sm text-slate-500">
-            Built for Bahamian businesses. No merchant account required.
+            Secure, instant-access payments for local business owners. No merchant account required.
           </p>
         </div>
       </section>
@@ -152,10 +151,10 @@ export default function Landing() {
       >
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-2 sm:mb-3 tracking-tight">
-            Simple, easy payments
+            Payments that keep your business moving
           </h2>
           <p className="text-base sm:text-lg text-slate-600 text-center mb-10 sm:mb-14 max-w-xl mx-auto px-1">
-            Building a business is hard. Getting paid shouldn&apos;t be.
+            Local business owners need timely liquidity. Get paid instantly, spend or withdraw when you need it. No banking delays.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
@@ -175,13 +174,13 @@ export default function Landing() {
                 icon: Banknote,
                 title: "Customer pays with card",
                 description:
-                  "Your customer opens the link and pays with Visa or Mastercard—securely online.",
+                  "Your customer opens the link and pays with Visa or Mastercard, securely online.",
               },
               {
                 icon: ArrowRight,
                 title: "Get paid",
                 description:
-                  "Funds land in your balance. Withdraw to your bank (1–3 days) or KemisPay Debit Card (instant).",
+                  "Funds land in your balance. Withdraw to your local debit card or bank account.",
               },
             ].map((step, i) => {
               const Icon = step.icon;
@@ -215,7 +214,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Transparent pricing — how it works + rates comparison */}
+      {/* Transparent pricing: how it works and rates comparison */}
       <section
         id="rates"
         className="scroll-mt-16 sm:scroll-mt-20 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white"
@@ -227,7 +226,7 @@ export default function Landing() {
             </h2>
             <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-1">
               Compare KemisPay to other payment options in The Bahamas. We publish
-              our fees upfront—no hidden costs.
+              our fees upfront. No hidden costs.
             </p>
           </div>
           <KemisPayPricing />
@@ -256,18 +255,18 @@ export default function Landing() {
       >
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-2 sm:mb-3 tracking-tight">
-            Built for the Bahamas
+            Built for Bahamian SMBs
           </h2>
           <p className="text-base sm:text-lg text-slate-600 text-center mb-10 sm:mb-14 max-w-xl mx-auto px-1">
-            Payment infrastructure designed for Bahamian businesses and regulations.
+            We bridge the gap between traditional banking delays and the need for immediate business owner cash flow.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               {
                 icon: Zap,
-                title: "No merchant account",
+                title: "Instant digital balance",
                 description:
-                  "Start accepting card payments without bank approvals or lengthy setup.",
+                  "Receive payments in real time. Your balance is available immediately. No waiting on clearing or settlement.",
               },
               {
                 icon: Shield,
@@ -277,15 +276,15 @@ export default function Landing() {
               },
               {
                 icon: Building2,
-                title: "Bank + debit card",
+                title: "Spend or withdraw",
                 description:
-                  "Withdraw to your Bahamian bank (1–3 days) or use the KemisPay Debit Card for instant access worldwide.",
+                  "Withdraw to your local debit card or bank account.",
               },
               {
                 icon: HeadphonesIcon,
                 title: "Support that gets you",
                 description:
-                  "Dedicated support for Bahamian businesses and local compliance.",
+                  "Dedicated support for local business owners and Bahamian compliance.",
               },
             ].map((item, i) => {
               const Icon = item.icon;
@@ -314,11 +313,10 @@ export default function Landing() {
       <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-primary">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 tracking-tight px-1">
-            Start accepting payments in minutes
+            Get the liquidity your business needs
           </h2>
           <p className="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 px-1">
-            Create an account, add your first payment link, and get paid—no merchant
-            account required.
+            Join Bahamian business owners who get paid instantly and spend or withdraw on their terms. Secure, instant-access payments. No merchant account required.
           </p>
           <Button
             size="lg"
@@ -331,7 +329,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer — Paystack-style multi-column */}
+      {/* Footer: multi-column */}
       <footer className="bg-slate-900 text-slate-300 py-10 sm:py-14 lg:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-12">
@@ -350,7 +348,7 @@ export default function Landing() {
                 <span className="text-white font-semibold">KemisPay</span>
               </div>
               <p className="text-sm text-slate-400">
-                Modern payments for the Bahamas.
+                Instant payments for small and medium-sized business owners in The Bahamas.
               </p>
             </div>
             <div>
@@ -435,10 +433,10 @@ export default function Landing() {
           </div>
           <div className="border-t border-slate-700 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-center sm:text-left">
             <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} KemisPay. Made for the Bahamas.
+              © {new Date().getFullYear()} KemisPay. Instant-access payments for Bahamian business owners.
             </p>
             <p className="text-sm text-slate-500">
-              Exclusively for Bahamian businesses.
+              Bridging banking delays and business owner cash flow.
             </p>
           </div>
         </div>

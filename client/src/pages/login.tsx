@@ -94,7 +94,7 @@ export default function Login() {
             </div>
             <CardTitle className="text-xl sm:text-2xl font-bold text-slate-800">KemisPay</CardTitle>
           </div>
-          <p className="text-sm sm:text-base text-slate-600">You don&apos;t even need a merchant account. Accept payments like a pro.</p>
+          <p className="text-sm sm:text-base text-slate-600">Instant-access payments for Bahamian business owners. Get paid to a digital balance. Spend with the card or withdraw to your bank.</p>
         </CardHeader>
         <CardContent className="px-4 sm:px-6 pb-6 sm:pb-8">
           <Form {...form}>
@@ -128,7 +128,7 @@ export default function Login() {
             </form>
           </Form>
           <div className="mt-4 text-center text-sm text-slate-600">
-            New vendor? We'll create your account automatically.
+            New business owner? We&apos;ll create your account automatically. No merchant account required.
           </div>
         </CardContent>
       </Card>

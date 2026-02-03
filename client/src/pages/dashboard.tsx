@@ -49,7 +49,7 @@ export default function Dashboard() {
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 mb-1 sm:mb-2" data-testid="title-dashboard">
               Dashboard
             </h1>
-            <p className="text-slate-600">Manage your payments and track your earnings</p>
+            <p className="text-slate-600">Your instant-access balance and payouts. Manage payments and liquidity in one place</p>
           </div>
 
           <BalanceOverview vendor={vendor} />

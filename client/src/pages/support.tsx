@@ -143,7 +143,7 @@ export default function Support() {
       <div className="container mx-auto p-4 max-w-4xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Support Center</h1>
-          <p className="text-slate-600">Get help with your KemisPay account</p>
+          <p className="text-slate-600">Get help with your KemisPay account. Instant-access payments for Bahamian business owners</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

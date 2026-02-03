@@ -49,25 +49,27 @@ export default function DebitCardDemo() {
 
         {/* Copy + CTA */}
         <div className="flex-1 w-full max-w-xl text-center lg:text-left px-0 sm:px-2">
+          <div className="inline-block px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-medium mb-3">
+            Coming soon
+          </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-3 sm:mb-4">
-            Order your KemisPay Debit Card today!
+            KemisPay Debit Card
           </h2>
-          <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-slate-600 mb-4 sm:mb-6">
+          <p className="text-slate-600 text-sm sm:text-base mb-4">
+            Your digital balance, your way. Spend with the KemisPay Debit Card or withdraw to your bank. Built for local business owners who need timely liquidity.
+          </p>
+          <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-slate-600 mb-6 sm:mb-8">
             <li className="flex items-center gap-2 justify-center lg:justify-start">
-              <span className="text-primary font-semibold">Instant payout</span>
-              — funds to your card when you choose.
+              <span className="text-primary font-semibold">Instant payout.</span>
+              Funds to your card when you choose.
             </li>
             <li className="flex items-center gap-2 justify-center lg:justify-start">
-              <span className="text-primary font-semibold">Use anywhere in the world</span>
-              — shop and withdraw globally.
+              <span className="text-primary font-semibold">Use anywhere in the world.</span>
+              Shop and withdraw globally.
             </li>
           </ul>
-          <p className="text-slate-600 text-sm sm:text-base mb-4 sm:mb-6">
-            Prefer your local bank? We support that too—{" "}
-            <strong className="text-slate-800">local bank payouts typically arrive in 1–3 business days</strong>.
-          </p>
           <Button size="lg" onClick={handleOrderCard} className="w-full sm:w-auto min-h-[44px] touch-manipulation">
-            Order your card
+            Join the waitlist
           </Button>
         </div>
       </div>

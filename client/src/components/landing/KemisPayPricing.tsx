@@ -5,11 +5,10 @@ export default function KemisPayPricing() {
         How KemisPay pricing works
       </h3>
       <p className="text-slate-600 text-sm mb-4 sm:mb-6 min-w-0">
-        When a customer pays with a card, fees include the KemisPay card fee
-        and your KemisPay platform fee. Below is an example on a $1,000 payment.
+        When a customer pays, KemisPay charges a 1.5% transaction fee and a 1% platform fee (2.5% total). Below is an example on a $1,000 payout.
       </p>
 
-      {/* Combined example table — scroll on narrow screens */}
+      {/* Single scenario: 1.5% transaction + 1% platform, scroll on narrow screens */}
       <div className="overflow-x-auto -mx-1 sm:mx-0 rounded-xl border border-slate-200 bg-white shadow-sm mb-6 sm:mb-8">
         <table className="w-full min-w-[280px] text-left">
           <thead>
@@ -28,32 +27,30 @@ export default function KemisPayPricing() {
           <tbody className="divide-y divide-slate-100">
             <tr>
               <td className="py-3 px-3 sm:px-4 text-slate-800 text-xs sm:text-sm">
-                KemisPay card fee
+                KemisPay transaction fee
               </td>
-              <td className="py-3 px-3 sm:px-4 text-slate-600 text-xs sm:text-sm text-right">~2.5%</td>
-              <td className="py-3 px-3 sm:px-4 text-slate-600 text-xs sm:text-sm text-right">$25</td>
-            </tr>
-            <tr>
-              <td className="py-3 px-3 sm:px-4 text-slate-800 text-xs sm:text-sm">KemisPay platform fee</td>
               <td className="py-3 px-3 sm:px-4 text-slate-600 text-xs sm:text-sm text-right">1.5%</td>
               <td className="py-3 px-3 sm:px-4 text-slate-600 text-xs sm:text-sm text-right">$15</td>
             </tr>
+            <tr>
+              <td className="py-3 px-3 sm:px-4 text-slate-800 text-xs sm:text-sm">KemisPay platform fee</td>
+              <td className="py-3 px-3 sm:px-4 text-slate-600 text-xs sm:text-sm text-right">1%</td>
+              <td className="py-3 px-3 sm:px-4 text-slate-600 text-xs sm:text-sm text-right">$10</td>
+            </tr>
             <tr className="bg-slate-50/50">
               <td className="py-3 px-3 sm:px-4 font-medium text-slate-800 text-xs sm:text-sm">Total fees</td>
-              <td className="py-3 px-3 sm:px-4 font-medium text-slate-800 text-xs sm:text-sm text-right">~4.0%</td>
-              <td className="py-3 px-3 sm:px-4 font-medium text-slate-800 text-xs sm:text-sm text-right">$40</td>
+              <td className="py-3 px-3 sm:px-4 font-medium text-slate-800 text-xs sm:text-sm text-right">2.5%</td>
+              <td className="py-3 px-3 sm:px-4 font-medium text-slate-800 text-xs sm:text-sm text-right">$25</td>
             </tr>
             <tr>
-              <td className="py-3 px-3 sm:px-4 font-medium text-primary text-xs sm:text-sm">Net credited to user account</td>
-              <td className="py-3 px-3 sm:px-4 text-slate-500 text-xs sm:text-sm text-right">—</td>
-              <td className="py-3 px-3 sm:px-4 font-semibold text-primary text-xs sm:text-sm text-right">$960</td>
+              <td className="py-3 px-3 sm:px-4 font-medium text-primary text-xs sm:text-sm">Net to business owner</td>
+              <td className="py-3 px-3 sm:px-4 text-slate-500 text-xs sm:text-sm text-right">-</td>
+              <td className="py-3 px-3 sm:px-4 font-semibold text-primary text-xs sm:text-sm text-right">$975</td>
             </tr>
           </tbody>
         </table>
         <p className="px-3 sm:px-4 py-3 text-xs text-slate-500 border-t border-slate-100 bg-slate-50/50 min-w-0">
-          So on a $1,000 payment, after the card fee and your platform fee,
-          the user&apos;s USDC balance inside KemisPay would be about $960 in
-          this example.
+          On a $1,000 payout, after the 1.5% transaction fee and 1% platform fee, the business owner receives $975.
         </p>
       </div>
     </div>

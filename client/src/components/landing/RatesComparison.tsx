@@ -17,39 +17,35 @@ export default function RatesComparison({
   const getCell = (provider: string, field: string) => {
     const map: Record<string, Record<string, string>> = {
       KemisPay: {
-        transaction: "~2.5% (card) + 1.5% (platform)",
-        debitCardFee: "$25 (1-time)",
-        wire: "Flat $25 per payout",
+        transaction: "1.5% transaction + 1% platform (2.5% total)",
+        wire: "Low flat (~$10–$25 per payout)",
         ecommerce: "Full website integration",
-        payout: "Instant (card) or 1–3 days (bank)",
-        useCase: "Events, services, e‑commerce",
+        payout: "Instant to debit card / ~1–3 days to bank",
+        useCase: "SMB business owners, instant liquidity, simple payouts",
       },
       Kanoo: {
-        transaction: "~1.75% (wallet); 1.5%–2% (card/POS)",
-        debitCardFee: "—",
-        wire: "~$14 transfer (tier-dependent)",
-        ecommerce: "Wallet / POS terminals",
-        payout: "Same day in-wallet",
-        useCase: "P2P, merchants on Kanoo network",
+        transaction: "~1.75% wallet; 1.5–2% card/POS",
+        wire: "1 BSD",
+        ecommerce: "Wallet; business POS",
+        payout: "Same-day in wallet",
+        useCase: "Local wallet + POS network",
       },
       SunCash: {
-        transaction: "3%–5% (send tiers); 2% + 0.50 BSD (card load)",
-        debitCardFee: "—",
-        wire: "1 BSD (bank withdrawal)",
-        ecommerce: "Wallet; ~1% merchant card (varies)",
-        payout: "1 BSD to bank; free receive in-wallet",
-        useCase: "Remittances, bills, wallet transfers",
+        transaction: "3–5% send tiers; 2% + 0.50 BSD card load",
+        wire: "1 BSD",
+        ecommerce: "Wallet; P2P; bills",
+        payout: "Same-day wallet; bank varies",
+        useCase: "P2P, utility/bill payments, local wallet",
       },
       "Cash N' Go": {
-        transaction: "4% (merchant card); $0.15 (P2P)",
-        debitCardFee: "—",
-        wire: "$10 (bank transfer)",
-        ecommerce: "Merchant card 4%; wallet / P2P",
-        payout: "$10 bank; $3–$5 in-network",
-        useCase: "Wallet, P2P, bills, merchant payments",
+        transaction: "4% business card; $0.15 P2P",
+        wire: "$10 bank",
+        ecommerce: "Wallet; P2P; bills; business",
+        payout: "Same-day wallet; bank varies",
+        useCase: "Wallet, P2P, smaller transfers",
       },
     };
-    return map[provider]?.[field] ?? "—";
+    return map[provider]?.[field] ?? "-";
   };
 
   return (
@@ -60,8 +56,7 @@ export default function RatesComparison({
             Transparent pricing
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Compare KemisPay to other payment options in The Bahamas. We publish
-            our fees upfront—no hidden costs.
+            Compare KemisPay to other payment options in The Bahamas. Built for small and medium-sized business owners who need fast access to funds. We publish our fees upfront.
           </p>
         </div>
       )}
@@ -95,10 +90,6 @@ export default function RatesComparison({
                   <div>
                     <dt className="font-medium text-slate-700">Transaction fee</dt>
                     <dd className="text-slate-600">{getCell(provider.name, "transaction")}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium text-slate-700">Debit card 1-time fee</dt>
-                    <dd className="text-slate-600">{getCell(provider.name, "debitCardFee")}</dd>
                   </div>
                   <div>
                     <dt className="font-medium text-slate-700">Bank / wire fee</dt>
@@ -153,8 +144,8 @@ export default function RatesComparison({
                   Transaction fee
                 </td>
                 <td className="py-4 px-5 text-center bg-primary/5">
-                  <span className="font-semibold text-primary">~2.5% + 1.5%</span>
-                  <div className="text-xs text-slate-500 mt-0.5">Card + platform (example)</div>
+                  <span className="font-semibold text-primary">1.5% + 1%</span>
+                  <div className="text-xs text-slate-500 mt-0.5">Transaction + platform (2.5% total)</div>
                 </td>
                 {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
                   <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
@@ -164,24 +155,11 @@ export default function RatesComparison({
               </tr>
               <tr>
                 <td className="py-4 px-6 font-medium text-slate-800 text-sm">
-                  KemisPay Debit Card 1-time fee
-                </td>
-                <td className="py-4 px-5 text-center bg-primary/5">
-                  <span className="font-semibold text-primary">$25</span>
-                </td>
-                {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
-                  <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
-                    {getCell(p, "debitCardFee")}
-                  </td>
-                ))}
-              </tr>
-              <tr>
-                <td className="py-4 px-6 font-medium text-slate-800 text-sm">
                   Bank transfer / wire fee
                 </td>
                 <td className="py-4 px-5 text-center bg-primary/5">
-                  <span className="font-semibold text-primary">Flat $25 per payout</span>
-                  <div className="text-xs text-slate-500 mt-0.5">Batch to save</div>
+                  <span className="font-semibold text-primary">Low flat (~$10–$25)</span>
+                  <div className="text-xs text-slate-500 mt-0.5">Per payout</div>
                 </td>
                 {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
                   <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
@@ -222,7 +200,7 @@ export default function RatesComparison({
                   Best for
                 </td>
                 <td className="py-4 px-5 text-center bg-primary/5">
-                  <span className="font-semibold text-primary">Events, services, stores</span>
+                  <span className="font-semibold text-primary">SMB business owners, instant liquidity, simple payouts</span>
                 </td>
                 {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
                   <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
@@ -238,10 +216,10 @@ export default function RatesComparison({
       {showBottomCta && (
         <div className="text-center mt-6 sm:mt-10 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 max-w-2xl mx-auto">
           <h3 className="font-semibold text-slate-900 mb-1 text-base sm:text-lg">
-            Ready for transparent pricing?
+            Ready for instant-access payments?
           </h3>
           <p className="text-slate-600 text-xs sm:text-sm mb-3 sm:mb-4 px-1">
-            Join Bahamian businesses using KemisPay. No hidden fees—just clear rates.
+            Join Bahamian SMB business owners using KemisPay for fast liquidity. No hidden fees, just clear rates.
           </p>
           <button
             type="button"

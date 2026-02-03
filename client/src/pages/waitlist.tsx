@@ -87,7 +87,7 @@ export default function Waitlist() {
         </div>
       </nav>
 
-      {/* Hero — card-focused */}
+      {/* Hero, card-focused */}
       <section className="pt-10 sm:pt-16 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-6">
@@ -97,7 +97,7 @@ export default function Waitlist() {
             Get the KemisPay Debit Card
           </h1>
           <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-xl mx-auto">
-            Instant payouts to your card. Use it anywhere in the world—or withdraw to your Bahamian bank. Join the waitlist and we&apos;ll notify you when the card is available.
+            Bahamian business owners: get instant access to your funds with the KemisPay Debit Card. Spend anywhere in the world or withdraw to your local bank. Join the waitlist and we&apos;ll notify you when the card is available.
           </p>
 
           {!isSuccess ? (
@@ -199,7 +199,7 @@ export default function Waitlist() {
         </div>
       </section>
 
-      {/* Card benefits — short, focused */}
+      {/* Card benefits, short and focused */}
       <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-slate-50 border-y border-slate-200">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 text-center mb-10">
@@ -208,7 +208,7 @@ export default function Waitlist() {
           <div className="grid sm:grid-cols-3 gap-6">
             {[
               { icon: Zap, title: "Instant payout", description: "Move funds from your KemisPay balance to your card when you want." },
-              { icon: Globe, title: "Use anywhere", description: "Shop and withdraw globally—online and in-store." },
+              { icon: Globe, title: "Use anywhere", description: "Shop and withdraw globally, online and in-store." },
               { icon: Building2, title: "Or use your bank", description: "Prefer your local bank? We support 1–3 day payouts too." },
             ].map((item) => {
               const Icon = item.icon;
