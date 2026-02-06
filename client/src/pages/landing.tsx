@@ -116,7 +116,7 @@ export default function Landing() {
       <section className="relative pt-16 sm:pt-20 lg:pt-28 pb-20 sm:pb-28 lg:pb-36 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
         {/* Memphis pattern background — subtle, brand-aligned */}
         <div
-          className="absolute inset-0 z-0 opacity-[0.12]"
+          className="absolute inset-0 z-0 opacity-[0.06]"
           style={{
             backgroundImage: "url('/memphis-pattern.svg')",
             backgroundRepeat: "repeat",
@@ -147,8 +147,11 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
             <div className="flex-1 text-center lg:text-left order-1">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-bold text-slate-900 tracking-tight leading-[1.15] mb-6 sm:mb-8 px-0 sm:px-2 relative">
-                Get Paid Fast in The Bahamas
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[5rem] font-bold text-slate-900 tracking-tight leading-[1.1] mb-6 sm:mb-8 px-0 sm:px-2 relative">
+                <span className="block">Get Paid. Get Going.</span>
+                <span className="block text-slate-600 mt-2 text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold">
+                  Payments made for The Bahamas.
+                </span>
               </h1>
               <p className="text-lg sm:text-xl lg:text-2xl text-slate-600 font-normal max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed px-1">
                 KemisPay lets customers pay your business and puts the money straight onto your card or bank. No complicated setup. No waiting weeks.
