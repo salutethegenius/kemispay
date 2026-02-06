@@ -8,26 +8,26 @@ import { CheckCircle2, DollarSign, CreditCard, Banknote, ArrowRight } from "luci
 
 const onboardingSteps = [
   {
-    title: "Create Your Account",
-    description: "Sign up with your business details. Built for small and medium-sized Bahamian business owners",
+    title: "Sign up",
+    description: "Create your account. No paperwork, no merchant account.",
     icon: CheckCircle2,
     completed: true
   },
   {
-    title: "Generate Payment Links",
-    description: "Create custom payment links for your products or services. Get paid instantly to your digital balance",
+    title: "Get a payment link",
+    description: "Set your price. Send the link to your customer by text or email.",
     icon: CreditCard,
     completed: false
   },
   {
-    title: "Share & Get Paid",
-    description: "Share links with customers and receive payments in real time. No banking delays",
+    title: "They pay",
+    description: "Your customer opens the link and pays with card. Done.",
     icon: DollarSign,
     completed: false
   },
   {
-    title: "Spend or Withdraw",
-    description: "Use the KemisPay Debit Card for instant access, or withdraw to your Bahamian bank",
+    title: "You get the money",
+    description: "The money goes to your balance. Use your card or send it to your bank.",
     icon: Banknote,
     completed: false
   }
@@ -109,11 +109,14 @@ export default function Onboarding() {
       <main className="max-w-4xl mx-auto px-4 py-8 lg:px-8">
         {/* Welcome Section */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">
-            Welcome to KemisPay!
+          <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-4 tracking-tight">
+            Get Paid. Get Going.
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-6">
-            KemisPay gives Bahamian small and medium-sized business owners fast, reliable access to funds. Accept card payments instantly to your digital balance, then spend with the KemisPay Debit Card or withdraw to your bank. No merchant account required.
+          <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-6">
+            KemisPay lets customers pay your business and puts the money straight onto your card or bank. No complicated setup. No waiting weeks.
+          </p>
+          <p className="text-base text-slate-600 max-w-xl mx-auto mb-6">
+            Made for Bahamian businesses, from food vendors to online sellers.
           </p>
           <div className="bg-primary/10 rounded-lg p-4 max-w-2xl mx-auto">
             <p className="text-sm text-primary font-medium">
@@ -124,7 +127,7 @@ export default function Onboarding() {
 
         {/* How It Works Steps */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center">How It Works</h2>
+          <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center">How it works</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {onboardingSteps.map((step, index) => {
               const Icon = step.icon;
@@ -187,12 +190,12 @@ export default function Onboarding() {
             </div>
             <div className="mt-6 p-4 bg-slate-100 rounded-lg">
               <div className="text-sm text-slate-600 space-y-2">
-                <p><strong>Smart Payout Strategy:</strong> The $25 wire fee is flat regardless of amount. Consolidate your payouts monthly to maximize your earnings:</p>
+                <p><strong>Smart payout strategy:</strong> The $25 wire fee is flat regardless of amount. Consolidate your payouts monthly to maximize your earnings:</p>
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>• On $500 → $25 fee (5%)</div>
                   <div>• On $2,000+ → $25 fee (1.25%)</div>
                 </div>
-                <p className="pt-2"><strong>Perfect for:</strong> Local business owners who need timely liquidity: events, services, online stores, and day-to-day operations.</p>
+                <p className="pt-2"><strong>Perfect for:</strong> Bahamian business owners who need timely liquidity — events, services, online stores, and day-to-day operations.</p>
               </div>
             </div>
           </CardContent>
@@ -238,8 +241,9 @@ export default function Onboarding() {
 
         {/* Get Started Button */}
         <div className="text-center">
+          <p className="text-sm text-slate-500 mb-4">Safe, simple payments. No merchant account needed.</p>
           <Button onClick={handleNextStep} size="lg" className="px-8">
-            {currentStep < onboardingSteps.length - 1 ? 'Next Step' : 'Get Started'}
+            {currentStep < onboardingSteps.length - 1 ? 'Next' : 'Get Started'}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

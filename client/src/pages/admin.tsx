@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,8 @@ export default function Admin() {
   const [ticketResponse, setTicketResponse] = useState("");
   const [flagReason, setFlagReason] = useState("");
 
+  const [, setLocation] = useLocation();
+
   const saveAdminKey = useCallback(() => {
     const key = adminKeyInput.trim();
     const operator = operatorEmailInput.trim();
@@ -45,17 +48,42 @@ export default function Admin() {
     toast({ title: "Signed in", description: "You can now use the dashboard." });
   }, [adminKeyInput, operatorEmailInput, toast]);
 
+  const logOut = useCallback(() => {
+    sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+    sessionStorage.removeItem(ADMIN_OPERATOR_STORAGE);
+    setAdminKeySet(false);
+    setAdminKeyInput("");
+    setOperatorEmailInput("");
+    queryClient.clear();
+    setLocation("/");
+    toast({ title: "Signed out", description: "You have been logged out." });
+  }, [setLocation, toast]);
+
   // KYC Data
   const { data: pendingKyc = [], isLoading: kycLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/kyc-pending"],
     enabled: adminKeySet,
   });
 
-  // Users Data
-  const { data: users = [], isLoading: usersLoading } = useQuery<any[]>({
+  // Users Data (use as canary for admin auth)
+  const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery<any[]>({
     queryKey: ["/api/admin/users"],
     enabled: adminKeySet,
   });
+
+  // On 401, admin key is invalid – clear session and show login again
+  useEffect(() => {
+    if (adminKeySet && usersError?.message?.includes("401")) {
+      sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+      sessionStorage.removeItem(ADMIN_OPERATOR_STORAGE);
+      setAdminKeySet(false);
+      toast({
+        title: "Admin key invalid",
+        description: "The key doesn't match ADMIN_API_KEY in your server .env. Sign in again.",
+        variant: "destructive",
+      });
+    }
+  }, [adminKeySet, usersError, toast]);
 
   // Withdrawals Data (API returns { withdrawals, enhancedReviewWithdrawalAmount })
   const { data: withdrawalsData, isLoading: withdrawalsLoading } = useQuery<{ withdrawals: any[]; enhancedReviewWithdrawalAmount: number }>({
@@ -292,6 +320,9 @@ export default function Admin() {
               </div>
               <span className="text-xl font-bold text-slate-800">KemisPay Operations</span>
             </div>
+            <Button variant="outline" size="sm" onClick={logOut}>
+              Log out
+            </Button>
           </div>
         </div>
       </header>
@@ -316,7 +347,7 @@ export default function Admin() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Pending KYC Documents</CardTitle>
+                  <CardTitle>KYC Documents (Pending / Rejected / Changes Requested)</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -340,6 +371,14 @@ export default function Admin() {
                             <Badge variant="outline">
                               {doc.documentType.replace('_', ' ')}
                             </Badge>
+                            {doc.status !== 'pending' && (
+                              <Badge
+                                variant={doc.status === 'rejected' ? 'destructive' : 'secondary'}
+                                className="text-xs"
+                              >
+                                {doc.status === 'rejected' ? 'Rejected' : doc.status.replace('_', ' ')}
+                              </Badge>
+                            )}
                             {(doc.flaggedAt || doc.escalatedAt) && (
                               <div className="flex gap-1">
                                 {doc.flaggedAt && <Badge variant="secondary" className="text-xs">Flagged</Badge>}

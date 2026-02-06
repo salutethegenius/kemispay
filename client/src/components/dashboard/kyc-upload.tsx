@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,14 +18,6 @@ export default function KycUpload({ vendor }: KycUploadProps) {
     queryKey: ["/api/kyc"],
     refetchInterval: 30_000,
   });
-
-  // #region agent log
-  useEffect(() => {
-    if (!Array.isArray(kycDocuments) || kycDocuments.length === 0) return;
-    const gov = kycDocuments.find((d: any) => d.documentType === 'government_id');
-    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'kyc-upload.tsx:documents',message:'KYC docs loaded',data:{count:kycDocuments.length,govStatus:gov?.status,hasReviewNotes:!!gov?.reviewNotes},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
-  }, [kycDocuments]);
-  // #endregion
 
   const uploadMutation = useMutation({
     mutationFn: async ({ documentType, file }: { documentType: string, file: File }) => {

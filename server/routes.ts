@@ -144,9 +144,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { accessToken } = z.object({ accessToken: z.string().min(1) }).parse(req.body);
 
       const supabaseUser = await getSupabaseUserFromToken(accessToken);
-      // #region agent log
-      fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'routes.ts:auth/verify',message:'Supabase user',data:{hasSupabaseUser:!!supabaseUser,hasEmail:!!supabaseUser?.email},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
       if (!supabaseUser?.email) {
         return res.status(401).json({ message: "Invalid or expired magic link" });
       }
@@ -184,9 +181,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const wallet = await storage.getWalletByUserId(user.id);
       const userPayments = await storage.getUserPayments(user.id);
       const isNewUser = userPayments.length === 0 && parseFloat(wallet?.balance ?? "0") === 0;
-      // #region agent log
-      fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'routes.ts:auth/verify:success',message:'Verify success',data:{userId:user?.id,path,isNewUser},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-      // #endregion
       res.json({
         token,
         vendor: {
@@ -544,9 +538,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const actor = getAdminOperator(req);
       const document = await storage.updateKycDocumentStatus(id, status, reviewNotes, actor);
-      // #region agent log
-      fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'routes.ts:kyc/review',message:'KYC review',data:{status,hasReviewNotes:!!reviewNotes?.trim(),docId:id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
-      // #endregion
       await storage.createAuditEvent({
         actor: actor ?? "admin",
         action: "kyc_reviewed",

@@ -31,7 +31,7 @@ import {
   type InsertAuditEvent,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, lte } from "drizzle-orm";
+import { eq, desc, and, gte, lte, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -401,7 +401,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(kycDocuments)
       .leftJoin(users, eq(kycDocuments.userId, users.id))
-      .where(eq(kycDocuments.status, "pending"))
+      .where(inArray(kycDocuments.status, ["pending", "rejected", "changes_requested"]))
       .orderBy(desc(kycDocuments.uploadedAt));
   }
 

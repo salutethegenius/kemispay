@@ -20,20 +20,11 @@ function getSupabaseAuthClient(): ReturnType<typeof createClient> | null {
 export async function getSupabaseUserFromToken(accessToken: string): Promise<SupabaseUser | null> {
   try {
     const supabase = getSupabaseAuthClient();
-    // #region agent log
-    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'supabase-auth.ts:getSupabaseUserFromToken',message:'Client check',data:{hasClient:!!supabase,tokenLen:accessToken?.length||0},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     if (!supabase) return null;
     const { data: { user }, error } = await supabase.auth.getUser(accessToken);
-    // #region agent log
-    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'supabase-auth.ts:getUser',message:'Supabase getUser result',data:{hasUser:!!user,hasError:!!error,errorMsg:error?.message},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     if (error || !user) return null;
     return user;
-  } catch (e: any) {
-    // #region agent log
-    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'supabase-auth.ts:catch',message:'getSupabaseUserFromToken error',data:{message:e?.message},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
+  } catch {
     return null;
   }
 }

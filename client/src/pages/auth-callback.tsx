@@ -1,34 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
+const VALID_MAGIC_LINK_TYPES = ["magiclink", "signup", "recovery"];
+
 export default function AuthCallback() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const errorShownRef = useRef(false);
 
   useEffect(() => {
     const hash = window.location.hash;
-    // #region agent log
-    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-callback.tsx:useEffect',message:'Hash check',data:{hasHash:!!hash,hashLen:hash?.length||0},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
     if (!hash) {
-      setStatus("error");
-      setErrorMessage("No authentication data found. Please try logging in again.");
-      return;
+      // Brief delay to avoid flash from bfcache or delayed hash
+      const t = setTimeout(() => {
+        if (!errorShownRef.current) {
+          errorShownRef.current = true;
+          setStatus("error");
+          setErrorMessage("No authentication data found. Please try logging in again.");
+        }
+      }, 150);
+      return () => clearTimeout(t);
     }
 
     const params = new URLSearchParams(hash.slice(1));
     const accessToken = params.get("access_token");
     const type = params.get("type");
-    // #region agent log
-    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-callback.tsx:params',message:'Extracted params',data:{hasAccessToken:!!accessToken,type,paramKeys:Array.from(params.keys())},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
-    if (!accessToken || type !== "magiclink") {
+
+    if (!accessToken) {
+      setStatus("error");
+      setErrorMessage("Invalid magic link. Please request a new one.");
+      return;
+    }
+    if (type && !VALID_MAGIC_LINK_TYPES.includes(type)) {
       setStatus("error");
       setErrorMessage("Invalid magic link. Please request a new one.");
       return;
@@ -37,17 +46,11 @@ export default function AuthCallback() {
     (async () => {
       try {
         const response = await apiRequest("POST", "/api/auth/verify", { accessToken });
-        // #region agent log
-        fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-callback.tsx:verify',message:'Verify response',data:{ok:response.ok,status:response.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-        // #endregion
         if (!response.ok) {
           const err = await response.json();
           throw new Error(err.message || "Verification failed");
         }
         const result = await response.json();
-        // #region agent log
-        fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-callback.tsx:result',message:'Verify result',data:{hasToken:!!result.token,hasVendor:!!result.vendor,isNewUser:result.isNewUser},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-        // #endregion
         if (result.token && result.vendor) {
           await login(result.token, result.vendor);
           setStatus("success");
@@ -56,9 +59,6 @@ export default function AuthCallback() {
           throw new Error("Invalid response");
         }
       } catch (err: any) {
-        // #region agent log
-        fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-callback.tsx:catch',message:'Verify error',data:{message:err?.message},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-        // #endregion
         setStatus("error");
         setErrorMessage(err.message || "Could not sign you in. Please try again.");
       }
