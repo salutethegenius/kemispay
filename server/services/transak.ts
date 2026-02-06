@@ -8,6 +8,7 @@ const TRANSAK_BASE_URL = process.env.TRANSAK_BASE_URL || "https://global-stg.tra
 const KEMISPAY_CUSTODY_WALLET_ADDRESS = process.env.KEMISPAY_CUSTODY_WALLET_ADDRESS;
 const CLIENT_URL = process.env.CLIENT_URL || "https://kemispay.com";
 
+// Solana is preferred for lower fees and faster finality (see docs/WALLET_SETUP.md). Transak supports both.
 function isEthereumAddress(addr: string): boolean {
   return /^0x[0-9a-fA-F]{40}$/.test((addr || "").trim());
 }
@@ -18,7 +19,7 @@ function custodyNetwork(addr: string): "ethereum" | "solana" {
   const a = (addr || "").trim();
   if (isEthereumAddress(a)) return "ethereum";
   if (isSolanaAddress(a)) return "solana";
-  return "solana"; // default for validation message
+  return "solana"; // default: use Solana for lower fees
 }
 
 export interface TransakWebhookPayload {
@@ -168,13 +169,15 @@ export async function getWidgetUrlForPaymentLink(linkId: string): Promise<string
   const network = custodyNetwork(addr);
   if (!isEthereumAddress(addr) && !isSolanaAddress(addr)) {
     throw new Error(
-      "KEMISPAY_CUSTODY_WALLET_ADDRESS must be a valid Ethereum (0x + 40 hex) or Solana (base58) address. " +
-        "Set it in .env - see docs/WALLET_SETUP.md for wallet setup."
+      "KEMISPAY_CUSTODY_WALLET_ADDRESS must be a valid Solana (base58, 32–44 chars) or Ethereum (0x + 40 hex) address. " +
+        "Recommended: Solana for lower fees. Set it in .env - see docs/WALLET_SETUP.md."
     );
   }
 
   const referrerDomain = new URL(CLIENT_URL).hostname;
-  const defaultFiatAmount = Math.round(parseFloat(paymentLink.amount));
+  const defaultFiatAmount = Math.round(parseFloat(String(paymentLink.amount ?? 0))) || 1;
+  // Payer sees order-confirmation (no login); payment-success is for logged-in vendor
+  const redirectURL = `${CLIENT_URL}/order-confirmation?linkId=${encodeURIComponent(linkId)}`;
   const params = new URLSearchParams({
     apiKey: TRANSAK_API_KEY,
     referrerDomain,
@@ -185,7 +188,7 @@ export async function getWidgetUrlForPaymentLink(linkId: string): Promise<string
     defaultFiatAmount: String(defaultFiatAmount),
     fiatCurrency: "USD",
     partnerOrderId: linkId,
-    redirectURL: `${CLIENT_URL}/payment-success`,
+    redirectURL,
     productsAvailed: "BUY",
   });
   return `${TRANSAK_BASE_URL}?${params.toString()}`;

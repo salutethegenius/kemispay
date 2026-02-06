@@ -77,4 +77,4 @@ This document describes the end-to-end flow from payment link creation to payout
 
 ## Technical note
 
-The current implementation uses Transak for both customer payments (Step 2) and business owner payouts (Step 5). Custody is on **Solana**: USDC is received at your Solana address; the Transak widget uses `network=solana`. Payment links open the Transak widget; webhooks credit the ledger when the custody address matches. Withdrawals are processed via the payout provider’s API. See [WALLET_SETUP.md](WALLET_SETUP.md) for Solana custody wallet configuration.
+The current implementation uses Transak for both customer payments (Step 2) and business owner payouts (Step 5). Custody is on **Solana** for lower fees and faster finality; **Transak supports Solana USDC**. USDC is received at your Solana address; the Transak widget uses `network=solana` when `KEMISPAY_CUSTODY_WALLET_ADDRESS` is a Solana (base58) address. Payment links open the Transak widget; webhooks credit the ledger when the custody address matches. Withdrawals are processed via the payout provider’s API. See [WALLET_SETUP.md](WALLET_SETUP.md) for Solana custody wallet configuration.

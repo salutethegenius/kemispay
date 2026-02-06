@@ -41,7 +41,14 @@ After the first deploy, set the webhook URL in the Transak dashboard to:
 https://<your-railway-domain>/api/transak/webhook
 ```
 
-Use the public URL Railway gives your service (e.g. `*.up.railway.app` or your custom domain).
+Use the public URL Railway gives your service (e.g. `*.up.railway.app` or your custom domain). Request webhook enablement via the Transak Partner Dashboard (STAGING or PRODUCTION). Payloads are JWT-encrypted; decryption uses `TRANSAK_ACCESS_TOKEN`.
+
+### Transak integration checklist
+
+- **Widget URL** (`GET /api/transak/widget-url?linkId=...`): Requires `TRANSAK_API_KEY`, `KEMISPAY_CUSTODY_WALLET_ADDRESS`, and `CLIENT_URL`. Returns Transak widget URL with custody wallet, USDC, and `partnerOrderId` = linkId.
+- **Pay page** (`/pay/:linkId`): Fetches widget URL and payment link details; loads widget in iframe; on `TRANSAK_ORDER_SUCCESSFUL` postMessage, redirects payer to `/order-confirmation?linkId=...`. If Transak redirects after completion, payers land on the same order-confirmation page (no login required).
+- **Webhook** (`POST /api/transak/webhook`): Expects JWT in `body.data`. On `ORDER_COMPLETED`, verifies custody wallet match, resolves linkId from `partnerOrderId`, creates payment and credits vendor wallet. Idempotent by `transakOrderId`.
+- **Env**: `TRANSAK_BASE_URL` = `https://global-stg.transak.com` (staging) or `https://global.transak.com` (production).
 
 ## 5. Database schema
 

@@ -1,6 +1,6 @@
 # KemisPay Wallet Setup
 
-Customer card payments send USDC to your **custody wallet** on Solana. This guide explains how to set it up.
+Customer card payments send USDC to your **custody wallet** on **Solana**. We use Solana for lower fees and faster finality; Transak supports Solana USDC. This guide explains how to set it up.
 
 ## Quick Start (Testing)
 

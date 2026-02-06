@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import KemisPayPricing from "@/components/landing/KemisPayPricing";
+import RatesComparison from "@/components/landing/RatesComparison";
 import DebitCardDemo from "@/components/landing/DebitCardDemo";
 import {
   Link2,
@@ -112,7 +113,17 @@ export default function Landing() {
       </nav>
 
       {/* Hero: obvious, calm, trustworthy + relatable visual */}
-      <section className="relative pt-16 sm:pt-20 lg:pt-28 pb-20 sm:pb-28 lg:pb-36 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative pt-16 sm:pt-20 lg:pt-28 pb-20 sm:pb-28 lg:pb-36 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
+        {/* Memphis pattern background — subtle, brand-aligned */}
+        <div
+          className="absolute inset-0 z-0 opacity-[0.12]"
+          style={{
+            backgroundImage: "url('/memphis-pattern.svg')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "800px 800px",
+          }}
+          aria-hidden
+        />
         {/* Vector lines connecting headline to image */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
           <defs>
@@ -253,9 +264,18 @@ export default function Landing() {
       {/* Why KemisPay — with real business owner */}
       <section
         id="why"
-        className="scroll-mt-20 sm:scroll-mt-24 py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white"
+        className="relative scroll-mt-20 sm:scroll-mt-24 py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden"
       >
-        <div className="max-w-6xl mx-auto">
+        <div
+          className="absolute inset-0 z-0 opacity-[0.08]"
+          style={{
+            backgroundImage: "url('/memphis-pattern.svg')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "900px 900px",
+          }}
+          aria-hidden
+        />
+        <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
             <div className="flex-shrink-0 w-full max-w-sm lg:max-w-md order-1 lg:order-1">
               <img
@@ -339,14 +359,8 @@ export default function Landing() {
             </p>
           </div>
           <KemisPayPricing />
-          <div className="mt-16 flex justify-center">
-            <img
-              src="/compare-made-for-bahamians.png"
-              alt="How we compare — Made for Bahamians. KemisPay vs Kanoo, SunCash, Cash N' Go: transaction fees, wire fees, e-commerce, payout speed."
-              className="w-full max-w-2xl lg:max-w-4xl h-auto rounded-xl shadow-lg object-contain"
-              width={900}
-              height={600}
-            />
+          <div className="mt-16">
+            <RatesComparison showHeading={false} showBottomCta={false} />
           </div>
           <p className="text-center mt-12">
             <Button
@@ -361,8 +375,17 @@ export default function Landing() {
       </section>
 
       {/* Debit card */}
-      <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-y border-slate-200/60">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-y border-slate-200/60 overflow-hidden">
+        <div
+          className="absolute inset-0 z-0 opacity-[0.15]"
+          style={{
+            backgroundImage: "url('/memphis-pattern.svg')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "700px 700px",
+          }}
+          aria-hidden
+        />
+        <div className="max-w-6xl mx-auto relative z-10">
           <DebitCardDemo />
         </div>
       </section>
