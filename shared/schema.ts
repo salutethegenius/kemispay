@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   isVerified: boolean("is_verified").default(false),
+  supabaseUserId: text("supabase_user_id").unique(),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 

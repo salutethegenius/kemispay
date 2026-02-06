@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { ledgerService } from "./services/ledger";
 import { supabaseStorageService } from "./services/supabase-storage";
+import { getSupabaseUserFromToken } from "./services/supabase-auth";
 import { EmailService } from "./services/email";
 import { handleTransakWebhook } from "./services/transak";
 import { complianceConfig, isAboveWithdrawalThreshold } from "./config/compliance";
@@ -135,6 +136,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/auth/verify", loginLimiter, async (req, res) => {
+    try {
+      const { accessToken } = z.object({ accessToken: z.string().min(1) }).parse(req.body);
+
+      const supabaseUser = await getSupabaseUserFromToken(accessToken);
+      // #region agent log
+      fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'routes.ts:auth/verify',message:'Supabase user',data:{hasSupabaseUser:!!supabaseUser,hasEmail:!!supabaseUser?.email},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+      // #endregion
+      if (!supabaseUser?.email) {
+        return res.status(401).json({ message: "Invalid or expired magic link" });
+      }
+
+      let user = await storage.getUserBySupabaseUserId(supabaseUser.id);
+      let path = user ? "bySupabaseId" : "";
+      if (!user) {
+        user = await storage.getUserByEmail(supabaseUser.email);
+        if (user) {
+          path = "byEmailThenUpdate";
+          await storage.updateUserSupabaseId(user.id, supabaseUser.id);
+        } else {
+          path = "createNew";
+          user = await storage.createUser({
+            email: supabaseUser.email,
+            name: supabaseUser.user_metadata?.full_name ?? supabaseUser.email.split("@")[0],
+            supabaseUserId: supabaseUser.id,
+          });
+          await storage.createWallet({
+            userId: user.id,
+            balance: "0",
+            currency: "USDC",
+          });
+        }
+      }
+
+      const token = randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      await storage.createSession({
+        userId: user.id,
+        token,
+        expiresAt,
+      });
+
+      const wallet = await storage.getWalletByUserId(user.id);
+      const userPayments = await storage.getUserPayments(user.id);
+      const isNewUser = userPayments.length === 0 && parseFloat(wallet?.balance ?? "0") === 0;
+      // #region agent log
+      fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'routes.ts:auth/verify:success',message:'Verify success',data:{userId:user?.id,path,isNewUser},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+      // #endregion
+      res.json({
+        token,
+        vendor: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          isVerified: user.isVerified,
+          balance: wallet?.balance ?? "0",
+          totalEarned: wallet?.balance ?? "0",
+          lastPayoutDate: null,
+          bankAccount: null,
+          stripeCustomerId: null,
+        },
+        isNewUser,
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error?.message ?? "Verification failed" });
     }
   });
 
@@ -461,15 +530,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/kyc/:id/review", authenticateAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, reviewNotes } = z
+      const parsed = z
         .object({
-          status: z.enum(["approved", "rejected"]),
+          status: z.enum(["approved", "rejected", "changes_requested"]),
           reviewNotes: z.string().optional(),
         })
         .parse(req.body);
 
+      const { status, reviewNotes } = parsed;
+      if (status === "changes_requested" && (!reviewNotes || !reviewNotes.trim())) {
+        return res.status(400).json({ message: "Review notes are required when requesting changes" });
+      }
+
       const actor = getAdminOperator(req);
       const document = await storage.updateKycDocumentStatus(id, status, reviewNotes, actor);
+      // #region agent log
+      fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'routes.ts:kyc/review',message:'KYC review',data:{status,hasReviewNotes:!!reviewNotes?.trim(),docId:id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+      // #endregion
       await storage.createAuditEvent({
         actor: actor ?? "admin",
         action: "kyc_reviewed",

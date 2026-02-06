@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import RatesComparison from "@/components/landing/RatesComparison";
 
 const loginSchema = z.object({
@@ -19,10 +17,9 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const [, setLocation] = useLocation();
-  const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -32,49 +29,41 @@ export default function Login() {
   });
 
   const onSubmit = async (data: LoginForm) => {
+    if (!supabase) {
+      toast({
+        title: "Configuration Error",
+        description: "Magic link login is not configured. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    console.log('Login attempt with:', data);
-
     try {
-      const response = await apiRequest("POST", "/api/auth/login", data);
-      console.log('Login response status:', response.status);
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { error } = await supabase.auth.signInWithOtp({
+        email: data.email,
+        options: { emailRedirectTo: redirectTo },
+      });
 
-      if (!response.ok) {
-        const errorResult = await response.json();
-        console.error('Login failed:', errorResult);
+      if (error) {
         toast({
-          title: "Login Failed",
-          description: errorResult.message || "Failed to login",
+          title: "Failed to send magic link",
+          description: error.message,
           variant: "destructive",
         });
         return;
       }
 
-      const result = await response.json();
-      console.log('Login success:', { hasToken: !!result.token, hasVendor: !!result.vendor, isNewUser: result.isNewUser });
-
-      if (result.token && result.vendor) {
-        await login(result.token, result.vendor);
-        toast({
-          title: "Success",
-          description: "Logged in successfully!",
-        });
-
-        // Route new users to onboarding, existing users to dashboard
-        setLocation(result.isNewUser ? "/onboarding" : "/dashboard");
-      } else {
-        console.error('Missing token or vendor in response:', result);
-        toast({
-          title: "Error",
-          description: "Invalid login response",
-          variant: "destructive",
-        });
-      }
+      setEmailSent(true);
+      toast({
+        title: "Check your email",
+        description: "We sent you a magic link. Click it to sign in.",
+      });
     } catch (error: any) {
-      console.error('Login error:', error);
       toast({
         title: "Error",
-        description: error.message || "Network error occurred",
+        description: error.message || "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -120,15 +109,15 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full min-h-[44px] touch-manipulation" 
-                disabled={isLoading}
+                disabled={isLoading || emailSent}
                 data-testid="button-login"
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "Sending magic link..." : emailSent ? "Check your email" : "Send magic link"}
               </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm text-slate-600">
-            New business owner? We&apos;ll create your account automatically. No merchant account required.
+            We&apos;ll send a link to your email. Click it to sign in. No password needed.
           </div>
         </CardContent>
       </Card>

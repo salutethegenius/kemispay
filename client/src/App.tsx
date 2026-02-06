@@ -10,6 +10,7 @@ import OrderConfirmation from "./pages/order-confirmation";
 import PayPage from "./pages/pay";
 import NotFound from "./pages/not-found";
 import Login from "@/pages/login";
+import AuthCallback from "@/pages/auth-callback";
 import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
 import Landing from "@/pages/landing";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/login" component={Login} />
+      <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={Admin} />

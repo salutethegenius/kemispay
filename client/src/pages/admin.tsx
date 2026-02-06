@@ -197,8 +197,12 @@ export default function Admin() {
   });
 
 
-  const handleKycReview = (status: 'approved' | 'rejected') => {
+  const handleKycReview = (status: 'approved' | 'rejected' | 'changes_requested') => {
     if (!selectedDocument) return;
+    if (status === 'changes_requested' && !reviewNotes.trim()) {
+      toast({ title: "Notes required", description: "Add review notes to explain what changes are needed.", variant: "destructive" });
+      return;
+    }
 
     reviewMutation.mutate({
       id: selectedDocument.id,
@@ -380,12 +384,12 @@ export default function Admin() {
 
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Review Notes (Optional)
+                          Review Notes {reviewNotes.trim() ? "(Optional for Approve/Reject)" : "(Required for Request changes)"}
                         </label>
                         <Textarea
                           value={reviewNotes}
                           onChange={(e) => setReviewNotes(e.target.value)}
-                          placeholder="Add any notes about this document..."
+                          placeholder="Add notes (required when requesting changes)"
                           rows={3}
                         />
                       </div>
@@ -405,6 +409,14 @@ export default function Admin() {
                           className="flex-1"
                         >
                           {reviewMutation.isPending ? 'Processing...' : 'Reject'}
+                        </Button>
+                        <Button
+                          onClick={() => handleKycReview('changes_requested')}
+                          disabled={reviewMutation.isPending || !reviewNotes.trim()}
+                          variant="outline"
+                          className="flex-1 border-amber-500 text-amber-700 hover:bg-amber-50 hover:border-amber-600"
+                        >
+                          {reviewMutation.isPending ? 'Processing...' : 'Request changes'}
                         </Button>
                       </div>
                       <div className="border-t pt-3 mt-3 space-y-2">

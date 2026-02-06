@@ -37,8 +37,10 @@ export interface IStorage {
   // User methods
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserBySupabaseUserId(supabaseUserId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserVerification(id: string, isVerified: boolean): Promise<User>;
+  updateUserSupabaseId(userId: string, supabaseUserId: string): Promise<User>;
 
   // Wallet methods
   getWalletByUserId(userId: string): Promise<Wallet | undefined>;
@@ -110,6 +112,11 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserBySupabaseUserId(supabaseUserId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.supabaseUserId, supabaseUserId));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
@@ -121,6 +128,16 @@ export class DatabaseStorage implements IStorage {
       .set({ isVerified })
       .where(eq(users.id, id))
       .returning();
+    return user;
+  }
+
+  async updateUserSupabaseId(userId: string, supabaseUserId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ supabaseUserId })
+      .where(eq(users.id, userId))
+      .returning();
+    if (!user) throw new Error("User not found");
     return user;
   }
 

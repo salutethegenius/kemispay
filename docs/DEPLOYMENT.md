@@ -61,6 +61,16 @@ npm run db:push
 
 Use the same `DATABASE_URL` as in Railway (e.g. from Railway’s Variables or a linked Postgres plugin).
 
+### Supabase: Row Level Security (RLS)
+
+If you use Supabase as the database, enable RLS to satisfy the Security Advisor and block direct PostgREST access to your tables:
+
+```bash
+npm run db:enable-rls
+```
+
+Or run `migrations/enable_rls.sql` in Supabase Dashboard > SQL Editor. The KemisPay backend connects as the database owner and bypasses RLS; only PostgREST/anon access is restricted.
+
 ## 6. Build and start
 
 - **Build:** `npm run build` (Vite client + esbuild server bundle).

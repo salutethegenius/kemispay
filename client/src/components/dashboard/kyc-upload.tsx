@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,18 @@ export default function KycUpload({ vendor }: KycUploadProps) {
   const { toast } = useToast();
   const [uploading, setUploading] = useState<string | null>(null);
 
-  const { data: kycDocuments = [] } = useQuery({
+  const { data: kycDocuments = [], refetch } = useQuery({
     queryKey: ["/api/kyc"],
+    refetchInterval: 30_000,
   });
+
+  // #region agent log
+  useEffect(() => {
+    if (!Array.isArray(kycDocuments) || kycDocuments.length === 0) return;
+    const gov = kycDocuments.find((d: any) => d.documentType === 'government_id');
+    fetch('http://127.0.0.1:7255/ingest/6b597c48-09d7-4176-b1b0-b57a5a5a9f64',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'kyc-upload.tsx:documents',message:'KYC docs loaded',data:{count:kycDocuments.length,govStatus:gov?.status,hasReviewNotes:!!gov?.reviewNotes},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+  }, [kycDocuments]);
+  // #endregion
 
   const uploadMutation = useMutation({
     mutationFn: async ({ documentType, file }: { documentType: string, file: File }) => {
@@ -80,8 +89,11 @@ export default function KycUpload({ vendor }: KycUploadProps) {
     input.click();
   };
 
+  const getDocument = (documentType: string) =>
+    Array.isArray(kycDocuments) ? kycDocuments.find((d: any) => d.documentType === documentType) : undefined;
+
   const getDocumentStatus = (documentType: string) => {
-    const doc = Array.isArray(kycDocuments) ? kycDocuments.find((d: any) => d.documentType === documentType) : undefined;
+    const doc = getDocument(documentType);
     return doc?.status || 'not_uploaded';
   };
 
@@ -91,11 +103,19 @@ export default function KycUpload({ vendor }: KycUploadProps) {
         return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      case 'changes_requested':
+        return <Badge className="bg-amber-100 text-amber-800">Changes requested</Badge>;
       case 'pending':
         return <Badge className="bg-orange-100 text-orange-800">Pending</Badge>;
       default:
         return <Badge variant="outline">Not Uploaded</Badge>;
     }
+  };
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/kyc"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/vendor/profile"] });
+    refetch();
   };
 
   const documentTypes = [
@@ -163,8 +183,10 @@ export default function KycUpload({ vendor }: KycUploadProps) {
         {/* Upload Forms */}
         <div className="space-y-4">
           {documentTypes.map((docType) => {
-            const status = getDocumentStatus(docType.type);
+            const doc = getDocument(docType.type);
+            const status = doc?.status || 'not_uploaded';
             const isUploading = uploading === docType.type;
+            const showReviewNotes = status === 'changes_requested' && doc?.reviewNotes;
             
             return (
               <div key={docType.type}>
@@ -172,6 +194,12 @@ export default function KycUpload({ vendor }: KycUploadProps) {
                   <label className="text-sm font-medium text-slate-700">{docType.label}</label>
                   {getStatusBadge(status)}
                 </div>
+                {showReviewNotes && (
+                  <div className="mb-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-800">
+                    <span className="font-medium">Reviewer note: </span>
+                    {doc.reviewNotes}
+                  </div>
+                )}
                 <div
                   className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${
                     status === 'approved' 
@@ -212,11 +240,16 @@ export default function KycUpload({ vendor }: KycUploadProps) {
         
         {/* Status Display */}
         <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <span className="text-sm font-medium text-slate-700">Verification Status</span>
-            <Badge className={vendor?.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
-              {vendor?.isVerified ? 'Verified' : 'Pending Review'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleRefresh}>
+                Refresh
+              </Button>
+              <Badge className={vendor?.isVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
+                {vendor?.isVerified ? 'Verified' : 'Pending Review'}
+              </Badge>
+            </div>
           </div>
           <div className="text-xs text-slate-500 mt-2">
             Documents are securely stored in Supabase storage
