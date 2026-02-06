@@ -270,7 +270,7 @@ export default function Landing() {
         className="relative scroll-mt-20 sm:scroll-mt-24 py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden"
       >
         <div
-          className="absolute inset-0 z-0 opacity-[0.08]"
+          className="absolute inset-0 z-0 opacity-[0.06]"
           style={{
             backgroundImage: "url('/memphis-pattern.svg')",
             backgroundRepeat: "repeat",
@@ -290,11 +290,14 @@ export default function Landing() {
               />
             </div>
             <div className="flex-1 order-2 lg:order-2">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-5 tracking-tight text-center lg:text-left">
-                Why Bahamian businesses use KemisPay
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-[1.15] mb-4 sm:mb-5 text-center lg:text-left">
+                <span className="block">Built for Bahamian Business.</span>
+                <span className="block text-slate-600 mt-2 text-lg sm:text-xl lg:text-2xl font-semibold">
+                  You get paid. Your card or bank. No waiting.
+                </span>
               </h2>
               <p className="text-base sm:text-lg text-slate-600 mb-10 sm:mb-14 max-w-xl mx-auto lg:mx-0 text-center lg:text-left px-1">
-                You get paid. The money goes to your card or bank. No waiting weeks.
+                Made for food vendors, online sellers, and everyone in between.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                 {[
@@ -354,12 +357,12 @@ export default function Landing() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-5 tracking-tight">
-              Clear pricing
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-[1.15] mb-4 sm:mb-5">
+              <span className="block">No Surprises. Just Clarity.</span>
+              <span className="block text-slate-600 mt-2 text-lg sm:text-xl lg:text-2xl font-semibold">
+                See our fees. Compare. No hidden costs.
+              </span>
             </h2>
-            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-1">
-              See our fees. Compare to other options in The Bahamas. No hidden costs.
-            </p>
           </div>
           <KemisPayPricing />
           <div className="mt-16">
@@ -380,7 +383,7 @@ export default function Landing() {
       {/* Debit card */}
       <section className="relative py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-y border-slate-200/60 overflow-hidden">
         <div
-          className="absolute inset-0 z-0 opacity-[0.15]"
+          className="absolute inset-0 z-0 opacity-[0.06]"
           style={{
             backgroundImage: "url('/memphis-pattern.svg')",
             backgroundRepeat: "repeat",
@@ -396,11 +399,14 @@ export default function Landing() {
       {/* Final CTA */}
       <section className="py-20 sm:py-28 lg:py-36 px-4 sm:px-6 lg:px-8 bg-primary">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-5 sm:mb-6 tracking-tight px-1">
-            Get paid fast. Use your money today.
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15] mb-5 sm:mb-6 px-1">
+            <span className="block">Get Paid. Use It Today.</span>
+            <span className="block text-white/90 mt-2 text-lg sm:text-xl lg:text-2xl font-semibold">
+              Funds go straight to your card or Bahamian bank. Easy verification.
+            </span>
           </h2>
-          <p className="text-base sm:text-lg text-white/90 mb-10 sm:mb-12 px-1">
-            Join Bahamian businesses who get paid and get their money on their card or bank. Safe and simple. No merchant account needed.
+          <p className="text-base sm:text-lg text-white/85 mb-10 sm:mb-12 px-1">
+            No merchant account. We verify your business so you can start accepting payments fast.
           </p>
           <Button
             size="lg"

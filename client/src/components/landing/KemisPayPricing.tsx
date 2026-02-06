@@ -1,7 +1,7 @@
 export default function KemisPayPricing() {
   return (
     <div className="max-w-3xl mx-auto mb-12 sm:mb-20 px-0 sm:px-2">
-      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-4 sm:mb-5 tracking-tight">
+      <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-4 sm:mb-5 tracking-tight">
         Our fees
       </h3>
       <p className="text-slate-600 text-sm mb-6 sm:mb-8 min-w-0">

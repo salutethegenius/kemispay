@@ -27,11 +27,14 @@ export default function DebitCardDemo() {
           <div className="inline-block px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-medium mb-4">
             Coming soon
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-4 sm:mb-5">
-            KemisPay Debit Card
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight leading-[1.15] mb-4 sm:mb-5">
+            <span className="block">Your Card. Your Money.</span>
+            <span className="block text-slate-600 mt-2 text-lg sm:text-xl lg:text-2xl font-semibold">
+              The KemisPay Debit Card.
+            </span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base mb-6">
-            Use your balance with the KemisPay card or send it to your bank. Simple.
+            Use your balance with the card or send it to your bank. Simple.
           </p>
           <ul className="space-y-3 sm:space-y-4 text-sm sm:text-base text-slate-600 mb-8 sm:mb-10">
             <li className="flex items-center gap-2 justify-center lg:justify-start">
