@@ -6,6 +6,7 @@ import { ledgerService } from "./services/ledger";
 import { supabaseStorageService } from "./services/supabase-storage";
 import { EmailService } from "./services/email";
 import { handleTransakWebhook } from "./services/transak";
+import { complianceConfig, isAboveWithdrawalThreshold } from "./config/compliance";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 import { nanoid } from "nanoid";
@@ -439,6 +440,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes (require ADMIN_API_KEY in X-Admin-API-Key or Authorization: Bearer)
+  // Operator identity: X-Operator-Email header or body.operatorEmail for audit trail
+  function getAdminOperator(req: Request): string | undefined {
+    const fromHeader = req.headers["x-operator-email"];
+    if (typeof fromHeader === "string" && fromHeader.trim()) return fromHeader.trim();
+    const body = req.body as { operatorEmail?: string };
+    if (body?.operatorEmail && typeof body.operatorEmail === "string" && body.operatorEmail.trim()) return body.operatorEmail.trim();
+    return undefined;
+  }
+
   app.get("/api/admin/kyc-pending", authenticateAdmin, async (req, res) => {
     try {
       const documents = await storage.getAllPendingKycDocuments();
@@ -458,7 +468,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .parse(req.body);
 
-      const document = await storage.updateKycDocumentStatus(id, status, reviewNotes);
+      const actor = getAdminOperator(req);
+      const document = await storage.updateKycDocumentStatus(id, status, reviewNotes, actor);
+      await storage.createAuditEvent({
+        actor: actor ?? "admin",
+        action: "kyc_reviewed",
+        entityType: "kyc_document",
+        entityId: id,
+        newValue: { status, reviewNotes: reviewNotes ?? null, reviewedBy: actor ?? null },
+      });
 
       if (status === "approved") {
         const userDocuments = await storage.getUserKycDocuments(document.userId);
@@ -490,6 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/users/:id/:action", authenticateAdmin, async (req, res) => {
     try {
       const { id, action } = req.params;
+      const actor = getAdminOperator(req);
 
       let result;
       switch (action) {
@@ -506,6 +525,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Invalid action" });
       }
 
+      await storage.createAuditEvent({
+        actor: actor ?? "admin",
+        action: `user_${action}`,
+        entityType: "user",
+        entityId: id,
+        newValue: { action },
+      });
       res.json(result);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -514,8 +540,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/withdrawals", authenticateAdmin, async (req, res) => {
     try {
-      const withdrawals = await storage.getAllWithdrawalRequests();
-      res.json(withdrawals);
+      const rows = await storage.getAllWithdrawalRequests();
+      const withdrawals = rows.map((w: any) => ({
+        ...w,
+        aboveEnhancedReviewThreshold: isAboveWithdrawalThreshold(w.amount ?? 0),
+      }));
+      res.json({
+        withdrawals,
+        enhancedReviewWithdrawalAmount: complianceConfig.enhancedReviewWithdrawalAmount,
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -531,7 +564,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .parse(req.body);
 
-      const withdrawal = await storage.processWithdrawalRequest(id, status, notes);
+      const actor = getAdminOperator(req);
+      const withdrawal = await storage.processWithdrawalRequest(id, status, notes, actor);
+      await storage.createAuditEvent({
+        actor: actor ?? "admin",
+        action: "withdrawal_processed",
+        entityType: "withdrawal_request",
+        entityId: id,
+        newValue: { status, notes: notes ?? null, processedBy: actor ?? null },
+      });
 
       if (status === "approved" && withdrawal.userId) {
         const wallet = await storage.getWalletByUserId(withdrawal.userId);
@@ -544,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             amount: withdrawalAmount,
             type: "withdrawal",
             referenceId: id,
-            metadata: { processedBy: "admin" },
+            metadata: { processedBy: actor ?? "admin" },
           });
         }
       }
@@ -574,8 +615,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .parse(req.body);
 
+      const actor = getAdminOperator(req);
       const ticket = await storage.updateSupportTicketStatus(id, status, adminResponse);
+      await storage.createAuditEvent({
+        actor: actor ?? "admin",
+        action: "support_ticket_responded",
+        entityType: "support_ticket",
+        entityId: id,
+        newValue: { status, hasResponse: !!adminResponse },
+      });
       res.json(ticket);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/audit-log", authenticateAdmin, async (req, res) => {
+    try {
+      const from = req.query.from ? new Date(String(req.query.from)) : undefined;
+      const to = req.query.to ? new Date(String(req.query.to)) : undefined;
+      const entityType = typeof req.query.entityType === "string" ? req.query.entityType : undefined;
+      const actor = typeof req.query.actor === "string" ? req.query.actor : undefined;
+      const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
+      if (from && isNaN(from.getTime())) return res.status(400).json({ message: "Invalid from date" });
+      if (to && isNaN(to.getTime())) return res.status(400).json({ message: "Invalid to date" });
+      const events = await storage.getAuditEvents({ from, to, entityType, actor, limit });
+      res.json(events);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/kyc/:id/flag", authenticateAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { flagReason } = z.object({ flagReason: z.string().min(1) }).parse(req.body);
+      const actor = getAdminOperator(req);
+      const document = await storage.updateKycDocumentFlag(id, flagReason, actor);
+      await storage.createAuditEvent({
+        actor: actor ?? "admin",
+        action: "kyc_flagged",
+        entityType: "kyc_document",
+        entityId: id,
+        newValue: { flagReason },
+      });
+      res.json(document);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/kyc/:id/escalate", authenticateAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const actor = getAdminOperator(req);
+      const document = await storage.updateKycDocumentEscalated(id, actor);
+      await storage.createAuditEvent({
+        actor: actor ?? "admin",
+        action: "kyc_escalated",
+        entityType: "kyc_document",
+        entityId: id,
+        newValue: {},
+      });
+      res.json(document);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

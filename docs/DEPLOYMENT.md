@@ -26,12 +26,12 @@ Set these in the Railway service **Variables** tab (no quotes in the UI):
 | `TRANSAK_API_KEY` | From [Transak Dashboard](https://docs.transak.com) |
 | `TRANSAK_ACCESS_TOKEN` | For webhook verification (Transak) |
 | `TRANSAK_BASE_URL` | `https://global.transak.com` (prod) or `https://global-stg.transak.com` (staging) |
-| `KEMISPAY_CUSTODY_WALLET_ADDRESS` | Ethereum address (0x + 40 hex) where USDC is received |
+| `KEMISPAY_CUSTODY_WALLET_ADDRESS` | Solana address (base58) where USDC is received |
 | `SUPABASE_URL` | Supabase project URL (KYC storage) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (KYC storage) |
 | `ADMIN_API_KEY` | Long random string for admin API and waitlist entries; set in env and enter in Admin UI |
 
-Optional: `AUTO_WITHDRAWAL_LIMIT_USD`, `WITHDRAWAL_DAILY_CAP_USD`, AWS SES vars for email.
+Optional: `AUTO_WITHDRAWAL_LIMIT_USD`, `WITHDRAWAL_DAILY_CAP_USD`, `ENHANCED_REVIEW_WITHDRAWAL_AMOUNT` (USD threshold for enhanced review; see `docs/COMPLIANCE_THRESHOLDS.md`), AWS SES vars for email.
 
 ## 4. Transak webhook
 

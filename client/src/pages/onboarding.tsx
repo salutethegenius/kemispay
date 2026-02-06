@@ -226,7 +226,7 @@ export default function Onboarding() {
             
             <div>
               <h3 className="font-semibold text-slate-800 mb-2">Is KYC verification required?</h3>
-              <p className="text-slate-600">Yes, to comply with financial regulations and ensure secure transactions, we require KYC verification. You can upload your documents directly through the dashboard.</p>
+              <p className="text-slate-600">Yes. Customer (payer) identity is verified by our payment provider (Transak). Merchant (business owner) verification is done by KemisPay for platform access. You can upload your documents directly through the dashboard.</p>
             </div>
             
             <div>

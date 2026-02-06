@@ -33,6 +33,9 @@ export default function Terms() {
             <p>
               KemisPay is a digital payments and stored value platform that allows users to accept payments, maintain account balances, and request withdrawals. KemisPay is not a bank, does not provide banking services, and does not offer investment or financial advice.
             </p>
+            <p className="mt-4">
+              <strong>Payment processor.</strong> Customer payments and payouts are processed by Transak (or our named payment partner). Transak is the regulated payment processor for payer identity verification (KYC), AML, sanctions screening, and fund movement. KemisPay is the platform operator and does not perform those regulated functions.
+            </p>
           </section>
 
           <section>

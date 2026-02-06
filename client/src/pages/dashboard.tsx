@@ -76,6 +76,7 @@ export default function Dashboard() {
 
       <footer className="bg-white border-t border-slate-200 mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8 lg:px-8">
+          <p className="text-center text-xs text-slate-500 mb-3">Customer payments and payouts are processed by Transak. Transak is the regulated payment processor; KemisPay is the platform operator.</p>
           <div className="text-center text-xs sm:text-sm text-slate-600">
             <p className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1">
               <span>&copy; {new Date().getFullYear()} KemisPay. All rights reserved.</span>

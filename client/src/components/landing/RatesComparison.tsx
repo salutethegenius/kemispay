@@ -17,11 +17,11 @@ export default function RatesComparison({
   const getCell = (provider: string, field: string) => {
     const map: Record<string, Record<string, string>> = {
       KemisPay: {
-        transaction: "1.5% transaction + 1% platform (2.5% total)",
+        transaction: "1.5% + 1% (2.5% total)",
         wire: "Low flat (~$10–$25 per payout)",
-        ecommerce: "Full website integration",
-        payout: "Instant to debit card / ~1–3 days to bank",
-        useCase: "SMB business owners, instant liquidity, simple payouts",
+        ecommerce: "Works on your website",
+        payout: "To your card or bank in days, not weeks",
+        useCase: "Get paid. Get your money on your card or bank. Simple.",
       },
       Kanoo: {
         transaction: "~1.75% wallet; 1.5–2% card/POS",
@@ -53,10 +53,10 @@ export default function RatesComparison({
       {showHeading && (
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">
-            Transparent pricing
+            Clear pricing
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Compare KemisPay to other payment options in The Bahamas. Built for small and medium-sized business owners who need fast access to funds. We publish our fees upfront.
+            See our fees. Compare to other options in The Bahamas. No hidden costs.
           </p>
         </div>
       )}
@@ -200,7 +200,7 @@ export default function RatesComparison({
                   Best for
                 </td>
                 <td className="py-4 px-5 text-center bg-primary/5">
-                  <span className="font-semibold text-primary">SMB business owners, instant liquidity, simple payouts</span>
+                  <span className="font-semibold text-primary">Get paid. Get your money on your card or bank. Simple.</span>
                 </td>
                 {["Kanoo", "SunCash", "Cash N' Go"].map((p) => (
                   <td key={p} className="py-4 px-5 text-center text-slate-600 text-sm">
@@ -216,17 +216,17 @@ export default function RatesComparison({
       {showBottomCta && (
         <div className="text-center mt-6 sm:mt-10 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 max-w-2xl mx-auto">
           <h3 className="font-semibold text-slate-900 mb-1 text-base sm:text-lg">
-            Ready for instant-access payments?
+            Ready to get paid fast?
           </h3>
           <p className="text-slate-600 text-xs sm:text-sm mb-3 sm:mb-4 px-1">
-            Join Bahamian SMB business owners using KemisPay for fast liquidity. No hidden fees, just clear rates.
+            Join Bahamian businesses using KemisPay. No hidden fees, just clear rates.
           </p>
           <button
             type="button"
             onClick={onCtaClick ?? (() => (window.location.href = "/login"))}
             className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 sm:px-6 sm:py-2.5 text-sm font-medium text-white hover:opacity-95 transition-opacity min-h-[44px] touch-manipulation"
           >
-            Create a free account
+            Create Free Account
           </button>
         </div>
       )}

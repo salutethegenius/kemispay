@@ -8,6 +8,7 @@ import {
   sessions,
   supportTickets,
   waitlist,
+  auditEvents,
   type User,
   type InsertUser,
   type Wallet,
@@ -26,9 +27,11 @@ import {
   type InsertSupportTicket,
   type Waitlist,
   type InsertWaitlist,
+  type AuditEvent,
+  type InsertAuditEvent,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -56,13 +59,19 @@ export interface IStorage {
   createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
   getUserWithdrawalRequests(userId: string): Promise<WithdrawalRequest[]>;
   updateWithdrawalStatus(id: string, status: string, notes?: string): Promise<WithdrawalRequest>;
-  processWithdrawalRequest(id: string, status: string, notes?: string): Promise<WithdrawalRequest & { user?: User }>;
+  processWithdrawalRequest(id: string, status: string, notes?: string, actor?: string): Promise<WithdrawalRequest & { user?: User }>;
 
   // KYC methods
   createKycDocument(document: InsertKycDocument): Promise<KycDocument>;
   getUserKycDocuments(userId: string): Promise<KycDocument[]>;
   getKycDocument(id: string): Promise<KycDocument | undefined>;
-  updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument>;
+  updateKycDocumentStatus(id: string, status: string, reviewNotes?: string, actor?: string): Promise<KycDocument>;
+  updateKycDocumentFlag(id: string, flagReason: string, actor?: string): Promise<KycDocument>;
+  updateKycDocumentEscalated(id: string, actor?: string): Promise<KycDocument>;
+
+  // Audit
+  createAuditEvent(event: InsertAuditEvent): Promise<AuditEvent>;
+  getAuditEvents(filters?: { from?: Date; to?: Date; entityType?: string; actor?: string; limit?: number }): Promise<AuditEvent[]>;
 
   // Session methods
   createSession(session: InsertSession): Promise<Session>;
@@ -196,13 +205,14 @@ export class DatabaseStorage implements IStorage {
     return request;
   }
 
-  async processWithdrawalRequest(id: string, status: string, notes?: string): Promise<WithdrawalRequest & { user?: User }> {
+  async processWithdrawalRequest(id: string, status: string, notes?: string, actor?: string): Promise<WithdrawalRequest & { user?: User }> {
     const [withdrawal] = await db
       .update(withdrawalRequests)
       .set({
         status,
         notes,
         processedAt: new Date(),
+        processedBy: actor ?? null,
       })
       .where(eq(withdrawalRequests.id, id))
       .returning();
@@ -228,17 +238,58 @@ export class DatabaseStorage implements IStorage {
     return document || undefined;
   }
 
-  async updateKycDocumentStatus(id: string, status: string, reviewNotes?: string): Promise<KycDocument> {
+  async updateKycDocumentStatus(id: string, status: string, reviewNotes?: string, actor?: string): Promise<KycDocument> {
     const [document] = await db
       .update(kycDocuments)
       .set({
         status,
         reviewNotes,
         reviewedAt: new Date(),
+        reviewedBy: actor ?? null,
       })
       .where(eq(kycDocuments.id, id))
       .returning();
     return document;
+  }
+
+  async updateKycDocumentFlag(id: string, flagReason: string, actor?: string): Promise<KycDocument> {
+    const [document] = await db
+      .update(kycDocuments)
+      .set({
+        flaggedAt: new Date(),
+        flagReason: flagReason || null,
+      })
+      .where(eq(kycDocuments.id, id))
+      .returning();
+    return document;
+  }
+
+  async updateKycDocumentEscalated(id: string, actor?: string): Promise<KycDocument> {
+    const [document] = await db
+      .update(kycDocuments)
+      .set({ escalatedAt: new Date() })
+      .where(eq(kycDocuments.id, id))
+      .returning();
+    return document;
+  }
+
+  async createAuditEvent(event: InsertAuditEvent): Promise<AuditEvent> {
+    const [e] = await db.insert(auditEvents).values(event).returning();
+    return e;
+  }
+
+  async getAuditEvents(filters?: { from?: Date; to?: Date; entityType?: string; actor?: string; limit?: number }): Promise<AuditEvent[]> {
+    const conditions: ReturnType<typeof eq>[] = [];
+    if (filters?.from) conditions.push(gte(auditEvents.createdAt, filters.from));
+    if (filters?.to) conditions.push(lte(auditEvents.createdAt, filters.to));
+    if (filters?.entityType) conditions.push(eq(auditEvents.entityType, filters.entityType));
+    if (filters?.actor) conditions.push(eq(auditEvents.actor, filters.actor));
+    const limit = filters?.limit ?? 200;
+    const base = conditions.length > 0
+      ? db.select().from(auditEvents).where(and(...conditions))
+      : db.select().from(auditEvents);
+    const rows = await base.orderBy(desc(auditEvents.createdAt)).limit(limit);
+    return rows;
   }
 
   async createSession(insertSession: InsertSession): Promise<Session> {
@@ -322,6 +373,9 @@ export class DatabaseStorage implements IStorage {
         fileSize: kycDocuments.fileSize,
         status: kycDocuments.status,
         uploadedAt: kycDocuments.uploadedAt,
+        flaggedAt: kycDocuments.flaggedAt,
+        flagReason: kycDocuments.flagReason,
+        escalatedAt: kycDocuments.escalatedAt,
         user: {
           id: users.id,
           name: users.name,

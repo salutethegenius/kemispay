@@ -19,10 +19,12 @@ export async function apiRequest(
   const token = localStorage.getItem('token') || (window as any).__kemispay_token;
   const adminKey = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("admin_api_key") : null;
 
+  const operatorEmail = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("admin_operator_email") : null;
   const headers: Record<string, string> = {
     ...(data ? { "Content-Type": "application/json" } : {}),
     ...(token ? { "Authorization": `Bearer ${token}` } : {}),
     ...(isAdminUrl(url) && adminKey ? { "X-Admin-API-Key": adminKey } : {}),
+    ...(isAdminUrl(url) && operatorEmail ? { "X-Operator-Email": operatorEmail } : {}),
   };
 
   const res = await fetch(url, {
@@ -46,9 +48,11 @@ export const getQueryFn: <T>(options: {
     const token = localStorage.getItem('token') || (window as any).__kemispay_token;
     const adminKey = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("admin_api_key") : null;
 
+    const operatorEmail = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("admin_operator_email") : null;
     const headers: Record<string, string> = {
       ...(token ? { "Authorization": `Bearer ${token}` } : {}),
       ...(isAdminUrl(url) && adminKey ? { "X-Admin-API-Key": adminKey } : {}),
+      ...(isAdminUrl(url) && operatorEmail ? { "X-Operator-Email": operatorEmail } : {}),
     };
 
     const res = await fetch(url, {

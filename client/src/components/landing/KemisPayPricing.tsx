@@ -1,15 +1,15 @@
 export default function KemisPayPricing() {
   return (
-    <div className="max-w-3xl mx-auto mb-10 sm:mb-16 px-0 sm:px-2">
-      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-3 sm:mb-4 tracking-tight">
-        How KemisPay pricing works
+    <div className="max-w-3xl mx-auto mb-12 sm:mb-20 px-0 sm:px-2">
+      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-4 sm:mb-5 tracking-tight">
+        Our fees
       </h3>
-      <p className="text-slate-600 text-sm mb-4 sm:mb-6 min-w-0">
-        When a customer pays, KemisPay charges a 1.5% transaction fee and a 1% platform fee (2.5% total). Below is an example on a $1,000 payout.
+      <p className="text-slate-600 text-sm mb-6 sm:mb-8 min-w-0">
+        When a customer pays you, we charge 1.5% plus 1% (2.5% total). Here’s what that looks like on $1,000.
       </p>
 
       {/* Single scenario: 1.5% transaction + 1% platform, scroll on narrow screens */}
-      <div className="overflow-x-auto -mx-1 sm:mx-0 rounded-xl border border-slate-200 bg-white shadow-sm mb-6 sm:mb-8">
+      <div className="overflow-x-auto -mx-1 sm:mx-0 rounded-xl border border-slate-200 bg-white shadow-sm mb-8 sm:mb-10">
         <table className="w-full min-w-[280px] text-left">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/80">

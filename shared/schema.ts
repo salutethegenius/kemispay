@@ -79,7 +79,11 @@ export const kycDocuments = pgTable("kyc_documents", {
   status: text("status").notNull().default("pending"),
   uploadedAt: timestamp("uploaded_at").default(sql`now()`),
   reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: text("reviewed_by"),
   reviewNotes: text("review_notes"),
+  flaggedAt: timestamp("flagged_at"),
+  flagReason: text("flag_reason"),
+  escalatedAt: timestamp("escalated_at"),
 });
 
 export const sessions = pgTable("sessions", {
@@ -111,6 +115,17 @@ export const waitlist = pgTable("waitlist", {
   phoneNumber: text("phone_number").notNull(),
   createdAt: timestamp("created_at").default(sql`now()`),
   confirmationSent: boolean("confirmation_sent").default(false),
+});
+
+export const auditEvents = pgTable("audit_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  actor: text("actor").notNull(),
+  action: text("action").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  oldValue: jsonb("old_value"),
+  newValue: jsonb("new_value"),
+  createdAt: timestamp("created_at").default(sql`now()`),
 });
 
 // Relations
@@ -174,7 +189,11 @@ export const insertKycDocumentSchema = createInsertSchema(kycDocuments).omit({
   id: true,
   uploadedAt: true,
   reviewedAt: true,
+  reviewedBy: true,
+  flaggedAt: true,
+  escalatedAt: true,
 });
+export const insertAuditEventSchema = createInsertSchema(auditEvents).omit({ id: true, createdAt: true });
 export const insertSessionSchema = createInsertSchema(sessions).omit({ id: true, createdAt: true });
 export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({
   id: true,
@@ -189,6 +208,9 @@ export const insertWaitlistSchema = createInsertSchema(waitlist).omit({
 });
 
 // Types
+export type AuditEvent = typeof auditEvents.$inferSelect;
+export type InsertAuditEvent = z.infer<typeof insertAuditEventSchema>;
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Wallet = typeof wallets.$inferSelect;

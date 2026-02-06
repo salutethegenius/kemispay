@@ -11,6 +11,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const ADMIN_KEY_STORAGE = "admin_api_key";
+const ADMIN_OPERATOR_STORAGE = "admin_operator_email";
 
 export default function Admin() {
   const { toast } = useToast();
@@ -18,22 +19,31 @@ export default function Admin() {
     typeof sessionStorage !== "undefined" && !!sessionStorage.getItem(ADMIN_KEY_STORAGE)
   );
   const [adminKeyInput, setAdminKeyInput] = useState("");
+  const [operatorEmailInput, setOperatorEmailInput] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
   const [withdrawalNotes, setWithdrawalNotes] = useState("");
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [ticketResponse, setTicketResponse] = useState("");
+  const [flagReason, setFlagReason] = useState("");
 
   const saveAdminKey = useCallback(() => {
     const key = adminKeyInput.trim();
+    const operator = operatorEmailInput.trim();
     if (!key) return;
+    if (!operator) {
+      toast({ title: "Operator email required", description: "Enter your email for the audit trail.", variant: "destructive" });
+      return;
+    }
     sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
+    sessionStorage.setItem(ADMIN_OPERATOR_STORAGE, operator);
     setAdminKeySet(true);
     setAdminKeyInput("");
+    setOperatorEmailInput("");
     queryClient.invalidateQueries();
-    toast({ title: "Admin key saved", description: "You can now use the dashboard." });
-  }, [adminKeyInput, toast]);
+    toast({ title: "Signed in", description: "You can now use the dashboard." });
+  }, [adminKeyInput, operatorEmailInput, toast]);
 
   // KYC Data
   const { data: pendingKyc = [], isLoading: kycLoading } = useQuery<any[]>({
@@ -47,16 +57,51 @@ export default function Admin() {
     enabled: adminKeySet,
   });
 
-  // Withdrawals Data
-  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<any[]>({
+  // Withdrawals Data (API returns { withdrawals, enhancedReviewWithdrawalAmount })
+  const { data: withdrawalsData, isLoading: withdrawalsLoading } = useQuery<{ withdrawals: any[]; enhancedReviewWithdrawalAmount: number }>({
     queryKey: ["/api/admin/withdrawals"],
     enabled: adminKeySet,
   });
+  const withdrawals = withdrawalsData?.withdrawals ?? [];
+  const enhancedReviewWithdrawalAmount = withdrawalsData?.enhancedReviewWithdrawalAmount ?? 10000;
 
   // Support Tickets Data
   const { data: supportTickets = [], isLoading: supportLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/support/tickets"],
     enabled: adminKeySet,
+  });
+
+  // Audit log (optional filters)
+  const [auditFilters, setAuditFilters] = useState({ from: "", to: "", entityType: "all", actor: "" });
+  const auditParams = new URLSearchParams();
+  if (auditFilters.from) auditParams.set("from", auditFilters.from);
+  if (auditFilters.to) auditParams.set("to", auditFilters.to);
+  if (auditFilters.entityType && auditFilters.entityType !== "all") auditParams.set("entityType", auditFilters.entityType);
+  if (auditFilters.actor) auditParams.set("actor", auditFilters.actor);
+  const auditUrl = `/api/admin/audit-log${auditParams.toString() ? `?${auditParams.toString()}` : ""}`;
+  const { data: auditEvents = [], isLoading: auditLoading } = useQuery<any[]>({
+    queryKey: [auditUrl],
+    enabled: adminKeySet,
+  });
+
+  // KYC flag and escalate mutations
+  const flagMutation = useMutation({
+    mutationFn: async ({ id, flagReason }: { id: string; flagReason: string }) =>
+      apiRequest("POST", `/api/admin/kyc/${id}/flag`, { flagReason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/kyc-pending"] });
+      setFlagReason("");
+      toast({ title: "Flagged", description: "Document flagged for review." });
+    },
+    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+  });
+  const escalateMutation = useMutation({
+    mutationFn: async (id: string) => apiRequest("POST", `/api/admin/kyc/${id}/escalate`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/kyc-pending"] });
+      toast({ title: "Escalated", description: "Document escalated to compliance." });
+    },
+    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
   });
 
   // KYC Review Mutation
@@ -192,9 +237,9 @@ export default function Admin() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Admin access</CardTitle>
+            <CardTitle>Platform Operations</CardTitle>
             <p className="text-sm text-slate-600 mt-1">
-              Enter your admin API key to continue. Set ADMIN_API_KEY in your server environment.
+              Enter your admin API key and your email. Your email is recorded with each action for the audit trail.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -206,7 +251,14 @@ export default function Admin() {
               onKeyDown={(e) => e.key === "Enter" && saveAdminKey()}
               autoFocus
             />
-            <Button onClick={saveAdminKey} disabled={!adminKeyInput.trim()} className="w-full">
+            <Input
+              type="email"
+              placeholder="Your email (operator for audit trail)"
+              value={operatorEmailInput}
+              onChange={(e) => setOperatorEmailInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && saveAdminKey()}
+            />
+            <Button onClick={saveAdminKey} disabled={!adminKeyInput.trim() || !operatorEmailInput.trim()} className="w-full">
               Continue
             </Button>
           </CardContent>
@@ -234,25 +286,25 @@ export default function Admin() {
                   <path d="M9.5 2A1.5 1.5 0 0 0 8 3.5v1A1.5 1.5 0 0 0 9.5 6h5A1.5 1.5 0 0 0 16 4.5v-1A1.5 1.5 0 0 0 14.5 2h-5zm6.5 4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zm-1 2v2H9V8h6z"/>
                 </svg>
               </div>
-              <span className="text-xl font-bold text-slate-800">KemisPay Admin</span>
+              <span className="text-xl font-bold text-slate-800">KemisPay Operations</span>
             </div>
-            {/* Navigation would go here */}
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-2">Admin Dashboard</h1>
-          <p className="text-slate-600">Manage users, KYC approvals, and withdrawal requests</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-2">Platform Operations</h1>
+          <p className="text-slate-600">Review merchant KYC, process withdrawals, handle support, and maintain audit records. Escalate suspicious activity or high-risk decisions; do not approve above-threshold withdrawals without escalation.</p>
         </div>
 
         <Tabs defaultValue="kyc" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="kyc">KYC Review</TabsTrigger>
             <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="support">Support Tickets</TabsTrigger>
+            <TabsTrigger value="support">Support</TabsTrigger>
+            <TabsTrigger value="audit">Audit log</TabsTrigger>
           </TabsList>
 
           {/* KYC Review Tab */}
@@ -280,9 +332,17 @@ export default function Admin() {
                             <div className="text-sm text-slate-600">{doc.user?.name ?? doc.vendor?.name}</div>
                             <div className="text-xs text-slate-500">{doc.user?.email ?? doc.vendor?.email}</div>
                           </div>
-                          <Badge variant="outline">
-                            {doc.documentType.replace('_', ' ')}
-                          </Badge>
+                          <div className="flex flex-col gap-1 items-end">
+                            <Badge variant="outline">
+                              {doc.documentType.replace('_', ' ')}
+                            </Badge>
+                            {(doc.flaggedAt || doc.escalatedAt) && (
+                              <div className="flex gap-1">
+                                {doc.flaggedAt && <Badge variant="secondary" className="text-xs">Flagged</Badge>}
+                                {doc.escalatedAt && <Badge variant="destructive" className="text-xs">Escalated</Badge>}
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div className="text-xs text-slate-500">
                           Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}
@@ -309,8 +369,8 @@ export default function Admin() {
                       <div>
                         <h3 className="font-medium text-slate-800 mb-2">Document Details</h3>
                         <div className="space-y-2 text-sm">
-                          <div><span className="font-medium">Vendor:</span> {selectedDocument.vendor?.name}</div>
-                          <div><span className="font-medium">Email:</span> {selectedDocument.vendor?.email}</div>
+                          <div><span className="font-medium">Merchant:</span> {selectedDocument.user?.name}</div>
+                          <div><span className="font-medium">Email:</span> {selectedDocument.user?.email}</div>
                           <div><span className="font-medium">Type:</span> {selectedDocument.documentType.replace('_', ' ')}</div>
                           <div><span className="font-medium">File:</span> {selectedDocument.fileName}</div>
                           <div><span className="font-medium">Size:</span> {selectedDocument.fileSize} bytes</div>
@@ -330,7 +390,7 @@ export default function Admin() {
                         />
                       </div>
 
-                      <div className="flex space-x-3">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           onClick={() => handleKycReview('approved')}
                           disabled={reviewMutation.isPending}
@@ -346,6 +406,35 @@ export default function Admin() {
                         >
                           {reviewMutation.isPending ? 'Processing...' : 'Reject'}
                         </Button>
+                      </div>
+                      <div className="border-t pt-3 mt-3 space-y-2">
+                        <label className="block text-sm font-medium text-slate-700">Flag / Escalate</label>
+                        <Input
+                          placeholder="Flag reason (optional)"
+                          value={flagReason}
+                          onChange={(e) => setFlagReason(e.target.value)}
+                          className="mb-2"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={flagMutation.isPending || !flagReason.trim()}
+                            onClick={() => selectedDocument && flagReason.trim() && flagMutation.mutate({ id: selectedDocument.id, flagReason: flagReason.trim() })}
+                          >
+                            {flagMutation.isPending ? '...' : 'Flag for review'}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={escalateMutation.isPending}
+                            onClick={() => selectedDocument && escalateMutation.mutate(selectedDocument.id)}
+                          >
+                            {escalateMutation.isPending ? '...' : 'Escalate to compliance'}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -364,6 +453,7 @@ export default function Admin() {
               <Card>
                 <CardHeader>
                   <CardTitle>Pending Withdrawals</CardTitle>
+                  <p className="text-sm text-slate-500">Single withdrawal ≥ ${enhancedReviewWithdrawalAmount.toLocaleString()} requires enhanced review / escalation before approval.</p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -383,9 +473,14 @@ export default function Admin() {
                             <div className="text-sm text-slate-600">{withdrawal.user?.name ?? withdrawal.vendor?.name}</div>
                             <div className="text-xs text-slate-500">{withdrawal.user?.email ?? withdrawal.vendor?.email}</div>
                           </div>
-                          <Badge className="bg-orange-100 text-orange-800">
-                            {withdrawal.status}
-                          </Badge>
+                          <div className="flex flex-col gap-1 items-end">
+                            <Badge className="bg-orange-100 text-orange-800">
+                              {withdrawal.status}
+                            </Badge>
+                            {withdrawal.aboveEnhancedReviewThreshold && (
+                              <Badge variant="destructive" className="text-xs">Above threshold – escalate</Badge>
+                            )}
+                          </div>
                         </div>
                         <div className="text-xs text-slate-500">
                           Requested: {new Date(withdrawal.requestedAt).toLocaleDateString()}
@@ -412,11 +507,10 @@ export default function Admin() {
                       <div>
                         <h3 className="font-medium text-slate-800 mb-2">Withdrawal Details</h3>
                         <div className="space-y-2 text-sm">
-                          <div><span className="font-medium">Vendor:</span> {selectedWithdrawal.vendor?.name}</div>
-                          <div><span className="font-medium">Email:</span> {selectedWithdrawal.vendor?.email}</div>
+                          <div><span className="font-medium">Merchant:</span> {selectedWithdrawal.user?.name}</div>
+                          <div><span className="font-medium">Email:</span> {selectedWithdrawal.user?.email}</div>
                           <div><span className="font-medium">Amount:</span> ${selectedWithdrawal.amount}</div>
-                          <div><span className="font-medium">Balance:</span> ${selectedWithdrawal.vendor?.balance}</div>
-                          <div><span className="font-medium">Bank Account:</span> {selectedWithdrawal.vendor?.bankAccount || 'Not provided'}</div>
+                          <div><span className="font-medium">Balance:</span> ${selectedWithdrawal.wallet?.balance ?? "—"}</div>
                           <div><span className="font-medium">Requested:</span> {new Date(selectedWithdrawal.requestedAt).toLocaleDateString()}</div>
                         </div>
                       </div>
@@ -481,10 +575,10 @@ export default function Admin() {
                           </div>
                           <div className="text-sm text-slate-600 mb-1">{user.email}</div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-500">
-                            <div>Balance: ${user.balance}</div>
-                            <div>Total Earned: ${user.totalEarned}</div>
-                            <div>Joined: {new Date(user.createdAt).toLocaleDateString()}</div>
-                            <div>Last Payout: {user.lastPayoutDate ? new Date(user.lastPayoutDate).toLocaleDateString() : 'Never'}</div>
+                            <div>Balance: {user.balance != null ? `$${user.balance}` : "—"}</div>
+                            <div>Total Earned: {user.totalEarned != null ? `$${user.totalEarned}` : "—"}</div>
+                            <div>Joined: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}</div>
+                            <div>Last Payout: {user.lastPayoutDate ? new Date(user.lastPayoutDate).toLocaleDateString() : "—"}</div>
                           </div>
                         </div>
 
@@ -586,7 +680,7 @@ export default function Admin() {
                           <div><span className="font-medium">ID:</span> {selectedTicket.id}</div>
                           <div><span className="font-medium">Subject:</span> {selectedTicket.subject}</div>
                           <div><span className="font-medium">User:</span> {selectedTicket.user?.name} ({selectedTicket.user?.email})</div>
-                          <div><span className="font-medium">Message:</span> {selectedTicket.message}</div>
+                          <div><span className="font-medium">Message:</span> {selectedTicket.description}</div>
                           <div><span className="font-medium">Opened:</span> {new Date(selectedTicket.createdAt).toLocaleDateString()}</div>
                           <div><span className="font-medium">Status:</span> {selectedTicket.status}</div>
                         </div>
@@ -638,6 +732,85 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Audit log Tab */}
+          <TabsContent value="audit">
+            <Card>
+              <CardHeader>
+                <CardTitle>Audit log</CardTitle>
+                <p className="text-sm text-slate-500">Record of operations actions for record-keeping and partner or bank queries.</p>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 flex flex-wrap gap-2 items-end">
+                  <Input
+                    type="date"
+                    placeholder="From"
+                    className="w-40"
+                    value={auditFilters.from}
+                    onChange={(e) => setAuditFilters((f) => ({ ...f, from: e.target.value }))}
+                  />
+                  <Input
+                    type="date"
+                    placeholder="To"
+                    className="w-40"
+                    value={auditFilters.to}
+                    onChange={(e) => setAuditFilters((f) => ({ ...f, to: e.target.value }))}
+                  />
+                  <Select value={auditFilters.entityType} onValueChange={(v) => setAuditFilters((f) => ({ ...f, entityType: v }))}>
+                    <SelectTrigger className="w-44">
+                      <SelectValue placeholder="Entity type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All types</SelectItem>
+                      <SelectItem value="kyc_document">KYC</SelectItem>
+                      <SelectItem value="withdrawal_request">Withdrawal</SelectItem>
+                      <SelectItem value="support_ticket">Support</SelectItem>
+                      <SelectItem value="user">User</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="Actor (email)"
+                    className="w-48"
+                    value={auditFilters.actor}
+                    onChange={(e) => setAuditFilters((f) => ({ ...f, actor: e.target.value }))}
+                  />
+                </div>
+                {auditLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2">Time</th>
+                          <th className="text-left py-2">Actor</th>
+                          <th className="text-left py-2">Action</th>
+                          <th className="text-left py-2">Entity</th>
+                          <th className="text-left py-2">Entity ID</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {auditEvents?.map((ev: any) => (
+                          <tr key={ev.id} className="border-b border-slate-100">
+                            <td className="py-2 text-slate-600">{ev.createdAt ? new Date(ev.createdAt).toLocaleString() : ""}</td>
+                            <td className="py-2">{ev.actor}</td>
+                            <td className="py-2">{ev.action}</td>
+                            <td className="py-2">{ev.entityType}</td>
+                            <td className="py-2 font-mono text-xs">{ev.entityId}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {!auditEvents?.length && (
+                      <div className="text-center py-8 text-slate-500">No audit events found.</div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

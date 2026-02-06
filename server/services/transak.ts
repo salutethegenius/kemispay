@@ -8,6 +8,19 @@ const TRANSAK_BASE_URL = process.env.TRANSAK_BASE_URL || "https://global-stg.tra
 const KEMISPAY_CUSTODY_WALLET_ADDRESS = process.env.KEMISPAY_CUSTODY_WALLET_ADDRESS;
 const CLIENT_URL = process.env.CLIENT_URL || "https://kemispay.com";
 
+function isEthereumAddress(addr: string): boolean {
+  return /^0x[0-9a-fA-F]{40}$/.test((addr || "").trim());
+}
+function isSolanaAddress(addr: string): boolean {
+  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test((addr || "").trim());
+}
+function custodyNetwork(addr: string): "ethereum" | "solana" {
+  const a = (addr || "").trim();
+  if (isEthereumAddress(a)) return "ethereum";
+  if (isSolanaAddress(a)) return "solana";
+  return "solana"; // default for validation message
+}
+
 export interface TransakWebhookPayload {
   data?: string; // JWT encrypted
   webhookData?: TransakWebhookData;
@@ -51,10 +64,25 @@ export async function handleTransakWebhook(body: { data?: string }): Promise<voi
 
   if (eventID === "ORDER_COMPLETED" && webhookData.status === "COMPLETED") {
     const orderId = webhookData.id;
-    const walletAddress = (webhookData.walletAddress ?? "").toLowerCase();
-    const custodyAddress = (KEMISPAY_CUSTODY_WALLET_ADDRESS ?? "").toLowerCase();
-    if (custodyAddress && walletAddress !== custodyAddress) {
-      return; // not our custody wallet, ignore
+    const walletAddress = (webhookData.walletAddress ?? "").trim();
+    const custodyAddress = (KEMISPAY_CUSTODY_WALLET_ADDRESS ?? "").trim();
+    const match =
+      custodyAddress &&
+      (isEthereumAddress(custodyAddress)
+        ? walletAddress.toLowerCase() === custodyAddress.toLowerCase()
+        : walletAddress === custodyAddress);
+    if (!match) {
+      if (custodyAddress && walletAddress) {
+        console.warn(
+          "[Transak webhook] Custody address mismatch (order " +
+            orderId +
+            "). Webhook wallet: ..." +
+            walletAddress.slice(-6) +
+            " vs env: ..." +
+            custodyAddress.slice(-6)
+        );
+      }
+      return;
     }
 
     // Idempotency: already processed?
@@ -114,6 +142,7 @@ export async function handleTransakWebhook(body: { data?: string }): Promise<voi
       referenceId: orderId,
       metadata: { linkId, transakOrderId: orderId },
     });
+    console.info("[Transak webhook] Credited order " + orderId + " amount " + netAmount + " USDC (link " + linkId + ")");
   }
 
   if (eventID === "ORDER_FAILED" || eventID === "ORDER_REFUNDED") {
@@ -135,12 +164,12 @@ export async function getWidgetUrlForPaymentLink(linkId: string): Promise<string
   if (!TRANSAK_API_KEY || !KEMISPAY_CUSTODY_WALLET_ADDRESS) {
     throw new Error("Transak or custody wallet not configured");
   }
-  // Validate custody address (Ethereum EOA format: 0x + 40 hex chars)
   const addr = (KEMISPAY_CUSTODY_WALLET_ADDRESS || "").trim();
-  if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+  const network = custodyNetwork(addr);
+  if (!isEthereumAddress(addr) && !isSolanaAddress(addr)) {
     throw new Error(
-      "KEMISPAY_CUSTODY_WALLET_ADDRESS must be a valid Ethereum address (0x...). " +
-        "Set it in .env - see .env.example for wallet setup."
+      "KEMISPAY_CUSTODY_WALLET_ADDRESS must be a valid Ethereum (0x + 40 hex) or Solana (base58) address. " +
+        "Set it in .env - see docs/WALLET_SETUP.md for wallet setup."
     );
   }
 
@@ -151,7 +180,7 @@ export async function getWidgetUrlForPaymentLink(linkId: string): Promise<string
     referrerDomain,
     walletAddress: addr,
     disableWalletAddressForm: "true", // Customer pays to our custody wallet; no wallet screen
-    network: "ethereum",
+    network,
     cryptoCurrencyCode: "USDC",
     defaultFiatAmount: String(defaultFiatAmount),
     fiatCurrency: "USD",
