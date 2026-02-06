@@ -277,7 +277,7 @@ export default function Landing() {
         />
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
-            <div className="flex-shrink-0 w-full max-w-sm lg:max-w-md order-1 lg:order-1">
+            <div className="flex-shrink-0 w-full max-w-md lg:max-w-lg order-1 lg:order-1">
               <img
                 src="/why-business-owner.png"
                 alt="Business owner in his shop, checking his phone — get paid and run your day"

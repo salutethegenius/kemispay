@@ -12,13 +12,13 @@ export default function DebitCardDemo() {
     <section id="card" className="scroll-mt-20 sm:scroll-mt-24">
       <div className="flex flex-col lg:flex-row items-center justify-center gap-12 sm:gap-16 lg:gap-20">
         {/* Phone + card visual — payment received, instantly to card */}
-        <div className="flex-shrink-0 w-full max-w-[300px] sm:max-w-[360px] lg:max-w-[420px]">
+        <div className="flex-shrink-0 w-full max-w-[380px] sm:max-w-[440px] lg:max-w-[520px]">
           <img
             src="/hero-phone-and-card.png"
             alt="Payment received on KemisPay — instantly deposited to your card"
             className="w-full h-auto rounded-2xl shadow-xl object-contain"
-            width={420}
-            height={280}
+            width={520}
+            height={347}
           />
         </div>
 
